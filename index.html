@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metacomics - Beta Lab</title>
+    <!-- Tailwind CSS para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Ícones Lucide para enriquecer o visual com vetores elegantes -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fontes Estilo HQ importadas diretamente do Google Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Quicksand:wght@400;600;800&display=swap');
+
+        /* 1. VARIÁVEIS DE CORES DO ESTILO NEOBRUTALISTA 
+          Definimos cores com alta saturação e contraste para simular páginas de gibis físicos.
+        */
+        :root {
+            --comic-yellow: #F2DA63;
+            --comic-red: #D62552;
+            --comic-blue: #41BDD9;
+            --comic-purple: #2E3D91;
+            --comic-green: #87B114;
+            --comic-orange: #F25D27;
+            --comic-black: #111111;
+            --comic-white: #FAFAFA;
+        }
+
+        /* 2. ESTILOS GERAIS DO SITE 
+          O fundo usa um padrão clássico de "pontos de retícula" (halftone/ben-day dots), 
+          uma marca registrada da impressão de quadrinhos antigos de baixo custo.
+        */
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #E2E8F0;
+            background-image: radial-gradient(var(--comic-black) 8%, transparent 9%), 
+                              radial-gradient(var(--comic-black) 8%, transparent 9%);
+            background-size: 12px 12px;
+            background-position: 0 0, 6px 6px;
+            color: var(--comic-black);
+            min-height: 100vh;
+        }
+
+        /* Títulos de impacto usam a fonte 'Luckiest Guy' (estilo onomatopeia) */
+        .font-comic-title {
+            font-family: 'Luckiest Guy', cursive;
+            letter-spacing: 0.05em;
+        }
+
+        /* 3. COMPONENTES ESTILO NEOBRUTALISTA (BRUTALIST DESIGN)
+          Bordas grossas pretas e sombras sólidas sem desfoque (sem blur) 
+          dão o visual "pop" tridimensional de quadrinhos.
+        */
+        .brutal-border {
+            border: 4px solid var(--comic-black);
+        }
+
+        .brutal-shadow-yellow {
+            box-shadow: 6px 6px 0px var(--comic-yellow), 6px 6px 0px 4px var(--comic-black);
+        }
+
+        .brutal-shadow-red {
+            box-shadow: 6px 6px 0px var(--comic-red), 6px 6px 0px 4px var(--comic-black);
+        }
+
+        .brutal-shadow-blue {
+            box-shadow: 6px 6px 0px var(--comic-blue), 6px 6px 0px 4px var(--comic-black);
+        }
+
+        .brutal-shadow-card {
+            box-shadow: 8px 8px 0px var(--comic-black);
+        }
+
+        /* Animação de clique brutalista: o elemento "afunda" em direção à sombra */
+        .brutal-btn-hover:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 10px 10px 0px var(--comic-black);
+        }
+
+        .brutal-btn-hover:active {
+            transform: translate(6px, 6px);
+            box-shadow: 2px 2px 0px var(--comic-black);
+        }
+
+        /* Transição suave para interações */
+        .comic-transition {
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen p-4 md:p-8">
+
+    <!-- BARRA DE NAVEGAÇÃO ATUALIZADA (Sem menu, apenas o título do site) -->
+    <header class="w-full max-w-7xl mx-auto mb-8">
+        <div class="bg-[var(--comic-yellow)] brutal-border p-4 text-center transform -rotate-1 shadow-[6px_6px_0px_rgba(0,0,0,1)] hover:rotate-0 transition-transform duration-300 flex flex-col items-center">
+            <h1 class="font-comic-title text-5xl md:text-7xl tracking-wide text-[var(--comic-black)] select-none">
+                 METACOMICS 
+            </h1>
+            <p class="text-xs md:text-sm font-extrabold uppercase tracking-widest mt-1 mb-4 text-[var(--comic-purple)]">
+                Laboratório Virtual de Quadrinhos, Arte e Programação por Pâmela de Castro
+            </p>
+            <!-- Imagem Longa para os Personagens (Placeholder) -->
+            <div class="w-full h-32 md:h-48 brutal-border overflow-hidden bg-white">
+                <img src="image/personagens base.png" alt="Banner de Personagens" class="w-full h-full object-cover object-center">
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL (INDEX + WEBCOMICS UNIFICADOS) -->
+    <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        <!-- COLUNA ESQUERDA: Boas-vindas, Manifesto e Filtros -->
+        <section class="lg:col-span-1 flex flex-col gap-6">
+            
+            <!-- Card de Manifesto de Boas-vindas -->
+            <div class="bg-white brutal-border p-6 brutal-shadow-red transform rotate-1 flex flex-col gap-4">
+                <span class="bg-[var(--comic-red)] text-white font-comic-title px-3 py-1 text-xl self-start brutal-border transform -rotate-3">
+                    VERSÃO BETA
+                </span>
+                <h2 class="font-comic-title text-3xl text-[var(--comic-black)]">O que é o Metacomics?</h2>
+                <p class="text-base leading-relaxed text-gray-800 font-semibold">
+                    Seja bem-vindo a versão de testes do meu laboratório de narrativas hipermídia. Este é um espaço onde as histórias em quadrinhos ganham vida no universo digital, então explore, experimente e divirta-se! Gostou de alguns dos nossos projetos? Então compartilha para algum amigo que curta quadrinhos tanto quanto você.
+                </p>
+                <div class="border-t-4 border-dashed border-[var(--comic-black)] pt-4 mt-2">
+                    <p class="text-xs font-bold uppercase text-[var(--comic-purple)] flex items-center gap-2">
+                        <i data-lucide="zap" class="w-4 h-4 fill-current"></i> Desenvolvido por Pâmela de Castro
+                    </p>
+                </div>
+            </div>
+
+            <!-- Caixa de Controle Interativa: Filtros da Galeria -->
+            <div class="bg-[var(--comic-blue)] brutal-border p-6 brutal-shadow-card transform -rotate-1">
+                <h3 class="font-comic-title text-2xl mb-4 text-white flex items-center gap-2 drop-shadow-[2px_2px_0px_#111]">
+                    <i data-lucide="sliders" class="w-6 h-6 stroke-2 text-[var(--comic-yellow)]"></i> Filtrar Acervo
+                </h3>
+                <p class="text-sm font-bold text-[var(--comic-black)] mb-4">Escolha a categoria que deseja explorar:</p>
+                
+                <!-- Botões de Filtros Rápidos (Mapeados para os dados reais do seu JS) -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="filterComics('Todos')" class="filter-btn active bg-[var(--comic-yellow)] px-3 py-2 brutal-border font-bold text-sm uppercase comic-transition hover:-translate-y-1 shadow-[2px_2px_0px_#111] hover:shadow-[4px_4px_0px_#111]">
+                        Todos
+                    </button>
+                    <button onclick="filterComics('bilu e varginha')" class="filter-btn bg-white px-3 py-2 brutal-border font-bold text-sm uppercase comic-transition hover:-translate-y-1 shadow-[2px_2px_0px_#111] hover:shadow-[4px_4px_0px_#111]">
+                        Bilu & Varginha
+                    </button>
+                    <button onclick="filterComics('quadro a quadro')" class="filter-btn bg-white px-3 py-2 brutal-border font-bold text-sm uppercase comic-transition hover:-translate-y-1 shadow-[2px_2px_0px_#111] hover:shadow-[4px_4px_0px_#111]">
+                        Quadro a Quadro
+                    </button>
+                    <button onclick="filterComics('metatirinhas')" class="filter-btn bg-white px-3 py-2 brutal-border font-bold text-sm uppercase comic-transition hover:-translate-y-1 shadow-[2px_2px_0px_#111] hover:shadow-[4px_4px_0px_#111]">
+                        Metatirinhas
+                    </button>
+                </div>
+            </div>
+
+            <!-- Caixa de Novidades do Desenvolvimento -->
+            <div class="bg-white brutal-border p-5 brutal-shadow-yellow text-sm">
+                <div class="flex items-center gap-2 text-[var(--comic-orange)] font-bold mb-2">
+                    <i data-lucide="terminal" class="w-5 h-5"></i>
+                    <span>DIÁRIO DE BORDO:</span>
+                </div>
+                <p class="font-semibold text-gray-700 italic">
+                    "Criando o protótipo de fusão de páginas! Próximos passos incluem adicionar leitor interativo direto em overlay de pop-up para testar novos roteiros visuais."
+                </p>
+            </div>
+
+            <!-- Nova Caixa: Sobre Mim e Redes Sociais -->
+            <div class="bg-[var(--comic-purple)] text-white brutal-border p-5 brutal-shadow-card transform rotate-1">
+                <h3 class="font-comic-title text-2xl mb-3 flex items-center gap-2 drop-shadow-[2px_2px_0px_#111]">
+                    <i data-lucide="user" class="w-6 h-6 text-[var(--comic-yellow)]"></i> Sobre a Autora
+                </h3>
+                
+                <!-- Placeholder de Imagem da Autora -->
+                <div class="w-full h-40 brutal-border bg-white mb-3 overflow-hidden">
+                    <img src="https://placehold.co/400x400/D62552/FAFAFA?text=Sua+Foto+Aqui" alt="Pâmela de Castro" class="w-full h-full object-cover">
+                </div>
+                
+                <p class="text-sm font-semibold mb-4 text-gray-200">
+                    Olá! Sou Pâmela de Castro, artista e desenvolvedora. Este é o meu laboratório de experiências visuais!
+                </p>
+                
+                <!-- Ícones de Redes Sociais -->
+                <div class="flex gap-3 justify-center">
+                    <a href="#" class="bg-[var(--comic-yellow)] text-black p-2 brutal-border comic-transition hover:-translate-y-1 shadow-[2px_2px_0px_#111] hover:shadow-[4px_4px_0px_#111]" title="Instagram">
+                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="bg-[var(--comic-blue)] text-black p-2 brutal-border comic-transition hover:-translate-y-1 shadow-[2px_2px_0px_#111] hover:shadow-[4px_4px_0px_#111]" title="Twitter">
+                        <i data-lucide="twitter" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="bg-[var(--comic-red)] text-white p-2 brutal-border comic-transition hover:-translate-y-1 shadow-[2px_2px_0px_#111] hover:shadow-[4px_4px_0px_#111]" title="Github">
+                        <i data-lucide="github" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- COLUNA DIREITA: Grelha Dinâmica de Quadrinhos -->
+        <section class="lg:col-span-2 flex flex-col gap-6">
+            <div class="bg-white brutal-border p-4 shadow-[6px_6px_0px_rgba(0,0,0,1)] flex justify-between items-center">
+                <h2 class="font-comic-title text-3xl flex items-center gap-2">
+                    Galeria de Webcomics
+                </h2>
+                <span id="comics-count" class="bg-[var(--comic-green)] text-white px-3 py-1 font-bold brutal-border transform rotate-2 shadow-[2px_2px_0px_#111]">
+                    0 HQs
+                </span>
+            </div>
+
+            <!-- GRELHA DOS QUADRINHOS (Gerada Dinamicamente pelo Javascript) -->
+            <div id="comics-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Os cards de webcomics serão injetados aqui -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ COMPACTO -->
+    <footer class="w-full max-w-7xl mx-auto mt-12 mb-4 text-center">
+        <div class="bg-[var(--comic-black)] text-white brutal-border p-4 transform rotate-0.5">
+            <p class="text-sm font-semibold tracking-wider">
+                © 2026 Pâmela de Castro - Todos os Direitos Reservados. Esse projeto foi feito <span class="text-[var(--comic-red)] text-lg">♥</span>, quadrinhos e HTML.
+            </p>
+        </div>
+    </footer>
+
+    <!-- ==============================================================
+         LÓGICA JAVASCRIPT: BANCO DE DADOS INTEGRADO + RENDERIZADOR
+         ============================================================== -->
+    <script>
+        // 1. BANCO DE DADOS DE WEBCOMICS (Dados reais dos arquivos importados)
+        const comicsData = [
+            { 
+                id: 1, 
+                title: "Som Animado", 
+                author: "Pâmela de Castro", 
+                category: "bilu e varginha", 
+                color: "#00E5FF", 
+                action: "GLITCH!", 
+                synopsis: "Uma tirinha musical, onde Bilu e Varginha exploram diferentes ritmos!", 
+                link: "COMICS/experimento-som-animado.html",
+                coverImage: "COLOQUE_SUA_IMAGEM_AQUI.jpg" 
+            },
+            { 
+                id: 2, 
+                title: "Desenhando!", 
+                author: "Pâmela de Castro", 
+                category: "quadro a quadro", 
+                color: "#FFDE00", 
+                action: "SLASH!", 
+                synopsis: "Peguem seus materiais e vamos criar os desenhos dos nossos próprios personagens!", 
+                link: "COMICS/experimento-tutorial.html",
+                coverImage: "COLOQUE_SUA_IMAGEM_AQUI.jpg" 
+            },
+            { 
+                id: 3, 
+                title: "ARTBOOK", 
+                author: "Pâmela de Castro", 
+                category: "quadro a quadro", 
+                color: "#D62552", 
+                action: "BAM!", 
+                synopsis: "Rascunhos, artes conceituais e os bastidores das criações.", 
+                link: "#",
+                coverImage: "COLOQUE_SUA_IMAGEM_AQUI.jpg" 
+            },
+            {   
+                id: 10, 
+                title: "O Show", 
+                author: "Pâmela de Castro", 
+                category: "metatirinhas", 
+                color: "#87B114", 
+                action: "POW!", 
+                synopsis: "Prepare a voz ou busque um instrumento musical: O Show já vai começar", 
+                link: "COMICS/experimento-audio.html",
+                coverImage: "COLOQUE_SUA_IMAGEM_AQUI.jpg"
+            },
+            {   
+                id: 11, 
+                title: "O Garra", 
+                author: "Pâmela de Castro", 
+                category: "bilu e varginha", 
+                color: "#2E3D91", 
+                action: "ZAP!", 
+                synopsis: "Chegou a hora de ajudar Bilu e Varginha em sua primeira abdução", 
+                link: "COMICS/experimento-garra.html",
+                coverImage: "COLOQUE_SUA_IMAGEM_AQUI.jpg"
+            },
+            {   
+                id: 12, 
+                title: "Bom Amigo", 
+                author: "Pâmela de Castro e Balão Mágico", 
+                category: "bilu e varginha", 
+                color: "#F25D27", 
+                action: "BOOM!", 
+                synopsis: "Adaptação em quadrinhos da canção - É tão lindo - do grupo musical balão mágico", 
+                link: "COMICS/experimento-trilha-sonora.html",
+                coverImage: "COLOQUE_SUA_IMAGEM_AQUI.jpg"
+            }
+        ];
+
+        // Inicialização de Elementos Interativos do DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar os ícones do Lucide
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            // Renderizar todos os quadrinhos de início
+            renderComics('Todos');
+        });
+
+        // 2. RENDERIZADOR DINÂMICO DE CARDS
+        function renderComics(filter) {
+            const grid = document.getElementById('comics-grid');
+            if(!grid) return;
+
+            // Filtra os dados com base no botão clicado
+            const filteredData = filter === 'Todos' 
+                ? comicsData 
+                : comicsData.filter(comic => comic.category.toLowerCase() === filter.toLowerCase());
+
+            // Limpa o grid antes de injetar os novos elementos
+            grid.innerHTML = '';
+
+            // Atualiza o contador de HQs
+            document.getElementById('comics-count').innerText = `${filteredData.length} HQs`;
+
+            if(filteredData.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-white brutal-border p-8 text-center brutal-shadow-card">
+                        <p class="font-comic-title text-3xl mb-2 text-[var(--comic-red)]">Ops! Vazio por aqui...</p>
+                        <p class="text-sm text-gray-600 font-bold">Essa categoria ainda está na prancheta de desenho da Pâmela!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Loop para criar cada card de quadrinho
+            filteredData.forEach(comic => {
+                const card = document.createElement('div');
+                card.className = `bg-white brutal-border p-4 brutal-shadow-card comic-transition transform hover:-translate-y-2 flex flex-col justify-between h-auto min-h-[420px]`;
+                
+                // Formatação da cor em HEX para o Placehold.co (Removendo o '#')
+                const hexColor = comic.color.replace('#', '');
+                const placeholderUrl = `https://placehold.co/400x300/${hexColor}/111?font=montserrat&text=${encodeURIComponent(comic.title)}`;
+
+                card.innerHTML = `
+                    <div class="flex-1 flex flex-col">
+                        <!-- Área da Imagem/Capa com Onomatopeia estilizada flutuando -->
+                        <div class="relative w-full h-56 brutal-border overflow-hidden bg-[var(--comic-black)] mb-4 group">
+                            <img src="${comic.coverImage}" alt="${comic.title}" 
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                 onerror="this.onerror=null; this.src='${placeholderUrl}';">
+                            
+                            <!-- Onomatopeia de ação da HQ usando a cor própria -->
+                            <span class="absolute top-2 right-2 text-white font-comic-title px-3 py-1 text-sm brutal-border transform rotate-6 group-hover:-rotate-12 transition-transform select-none shadow-[2px_2px_0px_#111]"
+                                  style="background-color: ${comic.color}; text-shadow: 1px 1px 0 #000;">
+                                ${comic.action}
+                            </span>
+                        </div>
+                        
+                        <!-- Categoria e Autor -->
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-black uppercase tracking-widest text-[var(--comic-purple)]">
+                                ${comic.category}
+                            </span>
+                        </div>
+                        
+                        <!-- Título e Sinopse -->
+                        <h3 class="font-comic-title text-3xl leading-none text-black mb-2">
+                            ${comic.title}
+                        </h3>
+                        <p class="text-sm text-gray-700 line-clamp-3 leading-relaxed font-semibold mb-4">
+                            ${comic.synopsis}
+                        </p>
+                    </div>
+
+                    <!-- Botão de Ação / Detalhes -->
+                    <a href="${comic.link}" class="w-full bg-[var(--comic-yellow)] hover:bg-[var(--comic-red)] hover:text-white text-black font-extrabold uppercase py-3 text-sm tracking-wider brutal-border comic-transition shadow-[4px_4px_0_#111] hover:shadow-[0px_0px_0_#111] hover:translate-x-1 hover:translate-y-1 text-center block mt-auto">
+                        Acessar Webcomic 🚀
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 3. SELETOR DE ABAS DE FILTRO DO MENU
+        function filterComics(filterValue) {
+            // Atualizar classes visuais dos botões de filtro
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-[var(--comic-yellow)]', 'active');
+                btn.classList.add('bg-white');
+            });
+
+            // Encontrar o botão clicado e ativá-lo
+            const clickedBtn = Array.from(buttons).find(btn => 
+                btn.getAttribute('onclick').includes(`'${filterValue}'`)
+            );
+            if(clickedBtn) {
+                clickedBtn.classList.remove('bg-white');
+                clickedBtn.classList.add('bg-[var(--comic-yellow)]', 'active');
+            }
+
+            // Filtrar os quadrinhos na tela
+            renderComics(filterValue);
+        }
+    </script>
+</body>
+</html>

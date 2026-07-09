@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Um Bom Amigo - Webcomic Sonora Interativa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            margin: 0; 
+            background-color: #030712; /* Fundo escuro absoluto de espaço */
+            font-family: 'Comic Neue', cursive, sans-serif;
+            overflow-x: hidden; 
+        }
+
+        .comic-title {
+            font-family: 'Architects Daughter', cursive, sans-serif;
+        }
+
+        /* Textura suave de papel físico off-white para as páginas centrais */
+        .paper-texture {
+            background-color: #fcfaf6;
+            background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+
+        /* Borda orgânica imitando o traço irregular do nanquim azul físico */
+        .ink-panel-border {
+            border: 4px solid #1d3557;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            box-shadow: 3px 5px 10px rgba(29, 53, 87, 0.15);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Destaque no painel ativo */
+        .comic-panel {
+            position: relative;
+            background-color: #ffffff; /* Mudado para branco puro para mesclar com o papel físico da sua arte */
+            cursor: pointer;
+        }
+
+        /* REDE DE SEGURANÇA INTELIGENTE: 
+           Garante que QUALQUER tag <img> inserida pelo usuário se estique até a borda externa da moldura,
+           eliminando frestas e margens cinzas automaticamente. */
+        .comic-panel img {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            z-index: 0 !important;
+            pointer-events: none !important;
+        }
+
+        .comic-panel:hover, .comic-panel.active-sound {
+            transform: scale(1.02);
+            box-shadow: 0 12px 24px rgba(29, 53, 87, 0.4);
+            border-color: #facc15; /* Borda acesa em amarelo ao passar o mouse */
+        }
+
+        /* Estrela piscantes estáticas */
+        .speech-bubble {
+            position: relative;
+            background: #ffffff;
+            border: 3px solid #1d3557;
+            border-radius: 1.5rem;
+            padding: 0.5rem 1rem;
+            color: #1d3557;
+            font-weight: bold;
+            font-size: 0.9rem;
+            line-height: 1.2;
+            max-width: 85%;
+            box-shadow: 2px 3px 0px rgba(29, 53, 87, 0.2);
+            z-index: 5;
+        }
+
+        /* Estrelas piscantes estáticas */
+        .static-star {
+            position: absolute;
+            background-color: #ffffff;
+            border-radius: 50%;
+            animation: twinkle var(--t-duration) ease-in-out infinite var(--t-delay);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 6px rgba(255, 255, 255, 0.8); }
+        }
+
+        /* Estrelas Cadentes (Meteoros) */
+        .shooting-star {
+            position: absolute;
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
+            transform: rotate(-35deg); /* Trajetória inclinada suave */
+            opacity: 0;
+            animation: shoot var(--s-duration) linear infinite var(--s-delay);
+            pointer-events: none;
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translate3d(var(--x), var(--y), 0) rotate(-35deg) scaleX(0);
+                opacity: 0;
+            }
+            4% {
+                opacity: 1;
+                transform: translate3d(calc(var(--x) - 80px), calc(var(--y) + 56px), 0) rotate(-35deg) scaleX(1);
+            }
+            12% {
+                opacity: 0;
+                transform: translate3d(calc(var(--x) - 350px), calc(var(--y) + 245px), 0) rotate(-35deg) scaleX(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate3d(calc(var(--x) - 350px), calc(var(--y) + 245px), 0) rotate(-35deg) scaleX(0);
+            }
+        }
+
+        @keyframes pulse-bar {
+            0%, 100% { height: 4px; }
+            50% { height: var(--h); }
+        }
+        
+        .animate-pulse-bar {
+            animation: pulse-bar 0.7s ease-in-out infinite;
+        }
+        
+        .paused-bar {
+            animation-play-state: paused !important;
+            height: 3px !important;
+        }
+
+        /* Estilização Premium do Slider do Reprodutor de Áudio */
+        .seek-slider {
+            -webkit-appearance: none;
+            width: 90px;
+            height: 5px;
+            background: #cbd5e1;
+            border-radius: 9999px;
+            outline: none;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        
+        .seek-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #facc15;
+            border: 2px solid #1d3557;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .seek-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+        }
+
+        .seek-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #facc15;
+            border: 2px solid #1d3557;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .seek-slider::-moz-range-thumb:hover {
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CONTAINER DO CÉU ESTRELADO (Fica por trás de toda a comic, sem bloquear interações) -->
+    <div id="space-bg" class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#050b1a] via-[#0b132b] to-[#1c2541] overflow-hidden">
+        <!-- Elementos inseridos dinamicamente por JavaScript -->
+    </div>
+
+    <!-- PAINEL FLUTUANTE DO PLAYER DA TRILHA SONORA (Completamente interativo comSeeker) -->
+    <div id="soundtrack-panel" class="fixed top-4 right-4 z-40 bg-white/95 border-2 border-blue-950 p-2.5 rounded-2xl shadow-lg flex flex-col md:flex-row items-center gap-3 backdrop-blur-sm transition-all hover:scale-[1.02] max-w-[290px] md:max-w-none">
+        
+        <!-- Botão Play/Pause -->
+        <button id="soundtrack-toggle" class="px-3.5 py-1.5 bg-slate-400 hover:bg-slate-500 text-white font-bold rounded-full flex items-center gap-2 border-2 border-blue-950 transition-all text-xs" title="Ativar/Pausar Trilha de Fundo">
+            <span id="soundtrack-icon" class="text-xs">🔇</span>
+            <span id="soundtrack-text" class="font-bold uppercase tracking-wider">Pause</span>
+            
+            <div id="soundwave-container" class="flex items-end gap-0.5 h-3 w-3 pb-0.5">
+                <div class="w-0.5 bg-slate-900 rounded-full animate-pulse-bar paused-bar" style="--h: 10px;"></div>
+                <div class="w-0.5 bg-slate-900 rounded-full animate-pulse-bar paused-bar" style="--h: 6px; animation-delay: 0.15s;"></div>
+                <div class="w-0.5 bg-slate-900 rounded-full animate-pulse-bar paused-bar" style="--h: 9px; animation-delay: 0.3s;"></div>
+            </div>
+        </button>
+
+        <!-- Barra de Progresso e Mostrador Digital -->
+        <div class="flex items-center gap-2 px-1">
+            <input type="range" id="seek-slider" class="seek-slider" min="0" max="100" value="0">
+            <span id="time-display" class="text-[10px] font-bold text-blue-950/80 font-mono tracking-tighter min-w-[64px] text-center">0:00 / 0:00</span>
+        </div>
+    </div>
+
+    <!-- ÁUDIO AMBIENTE: Melodia agradável para testes em loop -->
+    <audio id="ambient-audio" src="../image/comic12/trilha sonora.m4a" loop preload="auto"></audio>
+
+    <!-- ÁREA PRINCIPAL DA WEBCOMIC (PAGINAÇÃO CENTRAL) -->
+    <div id="comic-container" class="relative z-10 pb-24">
+        
+        <!-- PÁGINA CENTRAL DA WEBCOMIC -->
+        <div class="w-full max-w-3xl paper-texture mx-auto p-4 md:p-8 space-y-8 shadow-2xl border-x-4 border-slate-900/60">
+            
+            <!-- CABEÇALHO DO QUADRINHO -->
+            <div class="text-center py-6 border-b-2 border-dashed border-blue-900/30">
+                <h1 class="text-5xl md:text-7xl font-extrabold text-blue-900 tracking-tight comic-title mb-2">UM BOM AMIGO</h1>
+                <p class="text-xs md:text-sm text-blue-800 font-bold max-w-md mx-auto uppercase leading-tight mb-4">
+                    Adaptado em quadrinhos por Pâmela de Castro da canção "É tão Lindo", Grupo Balão Mágico. Produção sem fins lucrativos e com fins educacionais.
+                </p>
+                
+                <div class="inline-block mt-4 p-4 bg-blue-50/70 border-2 border-dashed border-blue-900/30 rounded-2xl max-w-lg mx-auto text-blue-900">
+                    <p class="text-sm font-bold flex items-center justify-center gap-1.5 mb-1.5 uppercase tracking-wider">
+                        <span>🎧</span> Como interagir com esta comic:
+                    </p>
+                    <p class="text-xs leading-relaxed font-bold text-blue-800/90">
+                        • Clique ou toque em qualquer quadrinho para escutar seus efeitos sonoros.<br>
+                        • Ative ou pause a música de fundo a qualquer momento usando o botão flutuante no canto superior direito.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PAINEL 1: Um quadro grande de abertura -->
+            <div class="comic-panel ink-panel-border h-64 w-full relative overflow-hidden" 
+                 data-audio-src="../image/comic12/áudio1.m4a">
+                <img src="../image/comic12/quadro1.png" alt="Quadro 1">
+            </div>
+
+            <!-- PAINÉIS 2, 3 E 4: Grid Simétrico de 3 colunas -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <!-- Painel 2 -->
+                <div class="comic-panel ink-panel-border h-80 relative overflow-hidden" 
+                     data-audio-src="../image/comic12/áudio2.m4a">
+                    <img src="../image/comic12/quadro2.png" alt="Quadro 2">
+                </div>
+                <!-- Painel 3 -->
+                <div class="comic-panel ink-panel-border h-80 relative overflow-hidden" 
+                     data-audio-src="../image/comic12/áudio3.m4a">
+                    <img src="../image/comic12/quadro3.png" alt="Quadro 3">
+                </div>
+                <!-- Painel 4 -->
+                <div class="comic-panel ink-panel-border h-80 relative overflow-hidden" 
+                     data-audio-src="../image/comic12/áudio4.m4a">
+                   <img src="../image/comic12/quadro4.png" alt="Quadro 4">
+                </div>
+            </div>
+
+            <!-- PAINEL 5 -->
+            <div class="comic-panel ink-panel-border h-96 w-full relative overflow-hidden" 
+                 data-audio-src="../image/comic12/áudio5.m4a">
+                <img src="../image/comic12/quadro5.png" alt="Quadro 5">
+            </div>
+
+            <!-- PAINÉIS 6 A 13: Grid de 2 colunas -->
+            <div class="space-y-4">
+                <!-- Linha 1 (Painel 6 e 7) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="comic-panel ink-panel-border h-64 relative overflow-hidden" 
+                         data-audio-src="../image/comic12/áudio6.m4a">
+                        <img src="../image/comic12/quadro6.png" alt="Quadro 6">
+                    </div>
+                    <div class="comic-panel ink-panel-border h-64 relative overflow-hidden" 
+                         data-audio-src="../image/comic12/áudio7.m4a">
+                        <img src="../image/comic12/quadro7.png" alt="Quadro 7">
+                    </div>
+                </div>
+
+                <!-- Linha 2 (Painel 8 e 9) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="comic-panel ink-panel-border h-64 relative overflow-hidden" 
+                         data-audio-src="../image/comic12/áudio8.m4a">
+                        <img src="../image/comic12/quadro8.png" alt="Quadro 8">
+                    </div>
+                    <div class="comic-panel ink-panel-border h-64 relative overflow-hidden" 
+                         data-audio-src="../image/comic12/áudio9.m4a">
+                       <img src="../image/comic12/quadro9.png" alt="Quadro 9">
+                    </div>
+                </div>
+
+                <!-- Linha 3 (Painel 10 e 11) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="comic-panel ink-panel-border h-64 relative overflow-hidden" 
+                         data-audio-src="../image/comic12/áudio10.m4a">
+                        <img src="../image/comic12/quadro10.png" alt="Quadro 10">
+                    </div>
+                    <div class="comic-panel ink-panel-border h-64 relative overflow-hidden" 
+                         data-audio-src="../image/comic12/áudio11.m4a">
+                        <img src="../image/comic12/quadro11.png" alt="Quadro 11">
+                    </div>
+                </div>
+
+                <!-- Linha 4 (Painel 12 e 13) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="comic-panel ink-panel-border h-64 relative overflow-hidden" 
+                         data-audio-src="../image/comic12/áudio12.m4a">
+                        <img src="../image/comic12/quadro12.png" alt="Quadro 12">
+                    </div>
+                    <div class="comic-panel h-64 relative overflow-hidden" 
+                         data-audio-src="../image/comic12/áudio13.m4a">
+                        <img src="../image/comic12/quadro13.png" alt="Quadro 13">
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAINEL 14: Painel Monumental (A imponente silhueta estelar do rascunho original) -->
+            <div class="comic-panel ink-panel-border min-h-[1100px] w-full relative overflow-hidden" 
+                 data-audio-src="../image/comic12/áudio14.m4a">
+                <img src="../image/comic12/quadro14.png" alt="Quadro 14">
+            </div>
+
+            <!-- PAINÉIS 15 E 16: Layout Assimétrico Refinado (Painel 15 tem 60% de tamanho e o 16 tem 40%) -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <!-- Painel 15: Ocupa 3 das 5 colunas (60%) -->
+                <div class="comic-panel ink-panel-border h-96 md:col-span-3 relative overflow-hidden" 
+                     data-audio-src="../image/comic12/áudio15.m4a">
+                    <img src="../image/comic12/quadro15.png" alt="Quadro 15">
+                </div>
+                <!-- Painel 16: Ocupa 2 das 5 colunas (40%) -->
+                <div class="comic-panel ink-panel-border h-96 md:col-span-2 relative overflow-hidden" 
+                     data-audio-src="../image/comic12/áudio16.m4a">
+                    <img src="../image/comic12/quadro16.png" alt="Quadro 16">
+                </div>
+            </div>
+
+            <!-- PAINÉIS 17, 18 E 19: Grid Simétrico Final de 3 colunas -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Painel 17 -->
+                <div class="comic-panel ink-panel-border h-96 relative overflow-hidden" 
+                     data-audio-src="../image/comic12/áudio17.m4a">
+                    <img src="../image/comic12/quadro17.png" alt="Quadro 17">
+                </div>
+                <!-- Painel 18 -->
+                <div class="comic-panel ink-panel-border h-96 relative overflow-hidden" 
+                     data-audio-src="../image/comic12/áudio18.m4a">
+                    <img src="../image/comic12/quadro18.png" alt="Quadro 18">
+                </div>
+                <!-- Painel 19 -->
+                <div class="comic-panel ink-panel-border h-96 relative overflow-hidden" 
+                     data-audio-src="../image/comic12/áudio19.m4a">
+                    <img src="../image/comic12/quadro19.png" alt="Quadro 19">
+                </div>
+            </div>
+
+            <!-- PAINEL 20: Desfecho / Fim da Página -->
+            <div class="comic-panel ink-panel-border h-[460px] w-full relative overflow-hidden" 
+                 data-audio-src="../image/comic12/áudio20.m4a">
+                <img src="../image/comic12/quadro20.png" alt="Quadro 20">
+            </div>
+
+            <!-- BOTÃO DE RETORNO AO SITE PRINCIPAL -->
+            <div class="flex flex-col items-center justify-center pt-10 pb-6 border-t-2 border-dashed border-blue-900/20">
+                <p class="text-xs text-blue-800/60 font-bold uppercase tracking-wider mb-3">Obrigado por ler!</p>
+                <a href="../webcomics.html" target="_parent" id="return-site-btn" class="px-8 py-4 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-extrabold rounded-full text-lg shadow-lg shadow-yellow-400/20 border-2 border-blue-950 transition-all hover:scale-105 inline-flex items-center gap-2" title="Voltar para a página principal">
+                    <span>⬅️</span> Voltar para o Site
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 1. GERADOR DO CÉU CÓSMICO (Estrelas Estáticas e Cadentes)
+        function createCosmos() {
+            const spaceBg = document.getElementById('space-bg');
+            if (!spaceBg) return;
+
+            // Gerar 60 pequenas estrelas cintilantes de fundo
+            for (let i = 0; i < 60; i++) {
+                const star = document.createElement('div');
+                star.classList.add('static-star');
+                
+                // Posições aleatórias na tela
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // Tamanhos aleatórios (de 1px a 3px)
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Tempos de animação dessincronizados
+                star.style.setProperty('--t-duration', `${Math.random() * 4 + 2}s`);
+                star.style.setProperty('--t-delay', `${Math.random() * 5}s`);
+                
+                spaceBg.appendChild(star);
+            }
+
+            // Gerar 8 Estrelas Cadentes (Meteoros) com trajetórias e tempos aleatórios
+            for (let i = 0; i < 8; i++) {
+                const meteor = document.createElement('div');
+                meteor.classList.add('shooting-star');
+                
+                // Começam no topo/direita do quadrante e caem na direção esquerda/baixo
+                meteor.style.setProperty('--x', `${Math.random() * 50 + 50}%`); // Entre 50% e 100% da largura
+                meteor.style.setProperty('--y', `${Math.random() * 40}%`);       // Entre 0% e 40% da altura
+                
+                // Duração e atrasos variados para surgirem ciclicamente em momentos aleatórios
+                meteor.style.setProperty('--s-duration', `${Math.random() * 5 + 7}s`); // 7s a 12s de ciclo
+                meteor.style.setProperty('--s-delay', `${Math.random() * 10}s`);
+                
+                spaceBg.appendChild(meteor);
+            }
+        }
+
+        // Executar a criação das estrelas imediatamente no carregamento da janela
+        window.addEventListener('DOMContentLoaded', createCosmos);
+
+        const comicContainer = document.getElementById('comic-container');
+        const ambientAudio = document.getElementById('ambient-audio');
+
+        const soundtrackToggle = document.getElementById('soundtrack-toggle');
+        const soundtrackIcon = document.getElementById('soundtrack-icon');
+        const soundtrackText = document.getElementById('soundtrack-text');
+        const soundwaveBars = document.querySelectorAll('#soundwave-container div');
+
+        const seekSlider = document.getElementById('seek-slider');
+        const timeDisplay = document.getElementById('time-display');
+
+        // Player dedicado a rodar os efeitos sonoros de cada quadrinho
+        const sfxPlayer = new Audio();
+        let lastPlayedPanel = null;
+
+        // 2. ATIVAR SOM DE UM PAINEL (Disparado estritamente por clique/toque)
+        function playPanelSound(panel) {
+            const audioSource = panel.getAttribute('data-audio-src');
+            
+            if (audioSource) {
+                // Se o leitor já clicou no painel que está ativamente tocando som, ignora
+                if (lastPlayedPanel === panel && !sfxPlayer.paused) return;
+
+                // Reseta estilo do painel ativo anterior
+                if (lastPlayedPanel) {
+                    lastPlayedPanel.classList.remove('active-sound');
+                }
+
+                // Carrega e dispara o som correspondente
+                sfxPlayer.src = audioSource;
+                sfxPlayer.currentTime = 0;
+                sfxPlayer.play().catch(e => console.log("Áudio em processamento de carregamento ou bloqueado:", e));
+
+                // Destaca o novo painel
+                panel.classList.add('active-sound');
+                lastPlayedPanel = panel;
+            }
+        }
+
+        // 3. CONTROLE MANUAL DO PLAY/PAUSE DA TRILHA DE FUNDO
+        soundtrackToggle.addEventListener('click', () => {
+            if (ambientAudio.paused) {
+                ambientAudio.volume = 0.25; // Volume confortável para não abafar as falas
+                ambientAudio.play().catch(e => console.log("Aguardando carregamento da música...", e));
+                
+                // Respostas visuais instantâneas: Ativo (Amarelo)
+                soundtrackIcon.textContent = "🔊";
+                soundtrackText.textContent = "Play";
+                soundtrackToggle.classList.remove('bg-slate-400', 'hover:bg-slate-500', 'text-white');
+                soundtrackToggle.classList.add('bg-yellow-400', 'hover:bg-yellow-500', 'text-slate-900');
+                
+                soundwaveBars.forEach(bar => bar.classList.remove('paused-bar'));
+            } else {
+                try {
+                    ambientAudio.pause();
+                } catch(e) {
+                    console.log("Erro ao pausar música:", e);
+                }
+                
+                // Respostas visuais instantâneas: Pausado (Cinza)
+                soundtrackIcon.textContent = "🔇";
+                soundtrackText.textContent = "Pause";
+                soundtrackToggle.classList.remove('bg-yellow-400', 'hover:bg-yellow-500', 'text-slate-900');
+                soundtrackToggle.classList.add('bg-slate-400', 'hover:bg-slate-500', 'text-white');
+                
+                soundwaveBars.forEach(bar => bar.classList.add('paused-bar'));
+            }
+        });
+
+        // 4. LÓGICA DO SLIDER (SEEKER) DO PLAYER DE AUDIO
+        
+        // Formatar tempo em formato legível MM:SS
+        function formatTime(secs) {
+            if (isNaN(secs)) return "0:00";
+            const minutes = Math.floor(secs / 60);
+            const seconds = Math.floor(secs % 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Atualizar barra de rolagem e cronômetro conforme o áudio toca
+        ambientAudio.addEventListener('timeupdate', () => {
+            if (!ambientAudio.duration) return;
+            const progress = (ambientAudio.currentTime / ambientAudio.duration) * 100;
+            seekSlider.value = progress;
+            
+            timeDisplay.textContent = `${formatTime(ambientAudio.currentTime)} / ${formatTime(ambientAudio.duration)}`;
+        });
+
+        // Sincronizar o tempo inicial quando a trilha carrega os metadados
+        ambientAudio.addEventListener('loadedmetadata', () => {
+            timeDisplay.textContent = `0:00 / ${formatTime(ambientAudio.duration)}`;
+        });
+
+        // Alterar o ponto da música ao arrastar ou clicar no slider (Seek)
+        seekSlider.addEventListener('input', () => {
+            if (!ambientAudio.duration) return;
+            const seekTo = (seekSlider.value / 100) * ambientAudio.duration;
+            ambientAudio.currentTime = seekTo;
+        });
+
+        // 5. ESCUTA DE EVENTOS (Estritamente clique, que atende tanto a cliques de mouse quanto a toques em celular)
+        const panels = document.querySelectorAll('.comic-panel');
+
+        panels.forEach(panel => {
+            panel.addEventListener('click', () => {
+                playPanelSound(panel);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcomic Interativa: Aprenda a Desenhar | Metacomics</title>
+    
+    <!-- Tailwind CSS e Fontes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Luckiest+Guy&family=Quicksand:wght@400;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --comic-red: #ff3366;
+            --comic-blue: #00ccff;
+            --comic-yellow: #ffcc00;
+            --comic-black: #111111;
+        }
+
+        body { 
+            font-family: 'Quicksand', sans-serif; 
+            background-color: #f4f4f5; 
+        }
+        
+        .font-bangers { font-family: 'Bangers', cursive; }
+        .font-luckiest { font-family: 'Luckiest Guy', cursive; font-weight: normal; letter-spacing: 1px; }
+
+        .brutal-border { border: 4px solid var(--comic-black); }
+        .brutal-shadow { box-shadow: 8px 8px 0 var(--comic-black); }
+        .brutal-shadow-sm { box-shadow: 4px 4px 0 var(--comic-black); }
+        
+        .bg-pattern-overlay {
+            background-image: radial-gradient(var(--comic-black) 1px, transparent 1px);
+            background-size: 10px 10px;
+            opacity: 0.05;
+            position: fixed; inset: 0; z-index: -1; pointer-events: none;
+        }
+
+        /* O Canvas de Desenho */
+        .area-desenho {
+            touch-action: none;
+            cursor: crosshair;
+            background-color: white;
+            background-image: radial-gradient(#ddd 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Estilos interativos */
+        .ferramenta-ativa {
+            background-color: var(--comic-black) !important;
+            color: white !important;
+            transform: translateY(2px);
+            box-shadow: 2px 2px 0 var(--comic-black) !important;
+        }
+
+        .aba-ativa {
+            background-color: var(--comic-blue) !important;
+            color: white !important;
+        }
+
+        /* =========================================
+           ESTILOS DA LUPA MÁGICA
+           ========================================= */
+        #lupa-lens {
+            position: fixed;
+            
+            /* --- EDITE O TAMANHO AQUI --- */
+            width: 150px; 
+            height: 150px;
+            
+            /* --- EDITE A BORDA AQUI --- */
+            border: 4px solid var(--comic-black);
+            
+            border-radius: 10%;
+            pointer-events: none; /* Garante que a lupa não bloqueia os cliques/movimentos do rato */
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 9999;
+            background-repeat: no-repeat;
+            background-color: white;
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.2); /* Sombra brutalista leve */
+        }
+
+        /* Classe para ocultar o cursor nativo e deixar apenas a lupa visível */
+        .ocultar-cursor {
+            cursor: none !important;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-10 min-h-screen relative z-10 flex flex-col items-center">
+    
+    <div class="bg-pattern-overlay"></div>
+
+    <!-- O elemento visual da Lupa -->
+    <div id="lupa-lens"></div>
+
+    <a href="../webcomics.html" class="fixed top-4 right-4 z-[999] bg-white hover:bg-[var(--comic-red)] hover:text-white text-black border-4 border-black px-4 py-2 font-bangers text-xl brutal-shadow transition-all active:translate-y-1 flex items-center gap-2 no-underline">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i> VOLTAR
+    </a>
+
+    <header class="mb-12 text-center max-w-4xl w-full mt-12 md:mt-0">
+        <h1 class="text-5xl md:text-7xl font-luckiest text-[var(--comic-blue)] drop-shadow-[4px_4px_0_var(--comic-black)] mb-4" style="-webkit-text-stroke: 2px #111;">
+            AULA DE DESENHO!
+        </h1>
+        <p class="text-xl font-bold bg-white px-6 py-2 brutal-border brutal-shadow-sm inline-block transform -rotate-1">
+            Vamos desenhar os nossos personagens?
+        </p>
+    </header>
+
+    <main class="w-full max-w-5xl flex flex-col gap-12 pb-20">
+
+ <!-- ==========================================
+             PASSO 1.1: TIRINHA PASSO A PASSO
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow flex flex-col md:flex-row items-center">
+            <div class="w-full">
+                <img src="../image/comic2/comic3.jpg" class="w-full img-zoom ocultar-cursor" alt="Desenho Passo a Passo">
+            </div>
+            </div>
+
+
+        <!-- ==========================================
+             PASSO 1: MATERIAIS
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow p-6 flex flex-col md:flex-row items-center gap-6 relative">
+            <div class="w-full md:w-1/3">
+                <img src="../image/comic2/quadro01.png" class="w-full img-zoom ocultar-cursor" alt="Autora da HQ">
+            </div>
+            <div class="w-full md:w-2/3">
+                <div class="bg-[var(--comic-yellow)] brutal-border p-6 relative">
+                    <div class="absolute -left-4 top-10 w-8 h-8 bg-[var(--comic-yellow)] border-l-4 border-b-4 border-black transform rotate-45 hidden md:block"></div>
+                    <div class="bg-black text-white font-luckiest text-4xl p-2 text-center mb-4 brutal-border transform -rotate-1 inline-block">PASSO 1: MATERIAIS</div>
+                    <p class="text-xl font-bold mb-2">E aí, Pessoal! Antes de começarmos, não precisamos de materiais caros. Alguns itens essenciais para o desenho tradicional são o lápis, a borracha e o papel. Que detalhar os seus desenhos? Marcadores, aquarelas e lápis de cor são ótimas opções!</p>
+                    <p class="text-xl font-bold ">Nesta aula digital, cada passo abaixo tem o seu próprio "Quadro Mágico". Podem usar o mouse, uma mesa digitalizadora ou os próprios dedos se estiverem no celular.</p>
+                </div>
+            </div>
+        </div>
+
+         <!-- ==========================================
+             PASSO 1.1: TIRINHA PASSO A PASSO
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow flex flex-col md:flex-row items-center">
+            <div class="w-full">
+                <img src="../image/comic2/comic1.jpg" class="w-full img-zoom ocultar-cursor" alt="Desenho Passo a Passo">
+            </div>
+            </div>
+
+        <!-- ==========================================
+             PASSO 2: A CABEÇA (Com Carrossel)
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow flex flex-col md:flex-row overflow-hidden">
+            <div class="w-full md:w-1/2 p-6 bg-[#f8f8f8] border-b-4 md:border-b-0 md:border-r-4 border-black flex flex-col relative carousel-container">
+                <div class="bg-black text-white font-luckiest text-3xl p-2 text-center mb-4 brutal-border transform -rotate-1">PASSO 2: A CABEÇA</div>
+                
+                <!-- Slides do Carrossel -->
+                <div class="slide" data-slide="1">
+                    <img src="../image/comic2/quadro02.png" class="w-full brutal-border mb-4 img-zoom ocultar-cursor">
+                    <h3 class="font-bangers text-2xl text-[var(--comic-blue)] mb-2">1. ROSTO DE FRENTE</h3>
+                    <p class="font-bold">Primeiro, desenhe um círculo. Este círculo será a base do nosso rosto. Em seguida, desenhe uma linha vertical reta no meio do círculo para dividir o rosto em duas partes iguais. Essa linha nos ajuda a manter tudo simétrico. 
+                    Depois, adicione uma linha horizontal no centro do círculo. Com essas linhas guias, fica muito mais fácil posicionar os olhos.</p>
+                </div>
+                <div class="slide hidden" data-slide="2">
+                    <img src="../image/comic2/quadro03.png" class="w-full brutal-border mb-4 img-zoom ocultar-cursor">
+                    <h3 class="font-bangers text-2xl text-[var(--comic-blue)] mb-2">2. ROSTO DE PERFIL</h3>
+                    <p class="font-bold">Comece com um círculo e desenhe uma linha vertical em uma das extremidades do círculo. A linha horizontal para os olhos ainda fica na parte central do círculo, mas agora veremos apenas um olho. A partir da linha vertical, desenhe o nariz, que se projeta para fora do círculo. A orelha fica posicionada entre a linha da sobrancelha e a base do nariz. 
+                        No perfil, podemos brincar mais com o formato do nariz e do queixo, para dar mais personalidade ao personagem.</p>
+                </div>
+                <div class="slide hidden" data-slide="3">
+                    <img src="../image/comic2/quadro04.png" class="w-full brutal-border mb-4 img-zoom ocultar-cursor">
+                    <h3 class="font-bangers text-2xl text-[var(--comic-blue)] mb-2">3. ROSTO EM TRÊS QUARTOS (3/4)</h3>
+                    <p class="font-bold">Esse ângulo permite ver tanto a frente quanto um pouco do lado do rosto, o que dá uma sensação mais dinâmica ao personagem. Para esse tipo de rosto, vamos começar desenhando um círculo. Desta vez, a linha vertical deve estar ligeiramente deslocada, pois isso nos mostra a lateral do rosto. 
+                    Ao desenhar os olhos do personagem, lembre-se de que o olho mais distante será menor devido à perspectiva.</p>
+                </div>
+
+                <!-- Botões do Carrossel -->
+                <div class="flex justify-between mt-auto pt-4 gap-2">
+                    <button class="btn-prev w-1/2 bg-[var(--comic-yellow)] brutal-border brutal-shadow-sm font-bangers text-xl py-2 hover:bg-black hover:text-white transition-all">&larr; ANTERIOR</button>
+                    <button class="btn-next w-1/2 bg-[var(--comic-yellow)] brutal-border brutal-shadow-sm font-bangers text-xl py-2 hover:bg-black hover:text-white transition-all">PRÓXIMO &rarr;</button>
+                </div>
+            </div>
+
+            <!-- Canvas -->
+            <div class="w-full md:w-1/2 p-6 flex flex-col bg-[var(--comic-blue)] wrapper-canvas" data-canvas-id="canvas-passo2">
+            </div>
+        </div>
+
+        <!-- ==========================================
+             PASSO 3: OLHOS, BOCA, NARIZ, ORELHA (Abas)
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow flex flex-col md:flex-row overflow-hidden">
+            <div class="w-full md:w-1/2 p-6 bg-[#f8f8f8] border-b-4 md:border-b-0 md:border-r-4 border-black flex flex-col">
+                <div class="bg-black text-white font-luckiest text-3xl p-2 text-center mb-4 brutal-border transform rotate-1">PASSO 3: DETALHES</div>
+                
+                <!-- Botões das Abas -->
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button onclick="mostrarAba('aba-olhos', 'grupo-detalhes', this)" class="btn-aba-detalhes bg-white brutal-border brutal-shadow-sm font-bangers text-xl py-1 aba-ativa">OLHOS</button>
+                    <button onclick="mostrarAba('aba-boca', 'grupo-detalhes', this)" class="btn-aba-detalhes bg-white brutal-border brutal-shadow-sm font-bangers text-xl py-1">BOCA</button>
+                    <button onclick="mostrarAba('aba-nariz', 'grupo-detalhes', this)" class="btn-aba-detalhes bg-white brutal-border brutal-shadow-sm font-bangers text-xl py-1">NARIZ</button>
+                    <button onclick="mostrarAba('aba-orelha', 'grupo-detalhes', this)" class="btn-aba-detalhes bg-white brutal-border brutal-shadow-sm font-bangers text-xl py-1">ORELHA</button>
+                </div>
+
+                <!-- Conteúdos das Abas -->
+                <div id="aba-olhos" class="grupo-detalhes">
+                    <img src="../image/comic2/quadro05.png" class="w-full brutal-border mb-4 img-zoom ocultar-cursor">
+                    <p class="font-bold">Comece com um círculo e adicione a íris e a pupila. 
+                    Experimente diferentes formas e tamanhos de olhos para ver como cada variação pode mudar a personalidade do seu personagem!</p>
+                </div>
+                <div id="aba-boca" class="grupo-detalhes hidden">
+                    <img src="../image/comic2/quadro06.png" class="w-full brutal-border mb-4 img-zoom ocultar-cursor">
+                    <p class="font-bold">Que tal praticar diferentes formas de bocas e ver como elas podem alterar a expressão geral do rosto dos nossos personagens?</p>
+                </div>
+                <div id="aba-nariz" class="grupo-detalhes hidden">
+                    <img src="../image/comic2/quadro07.png" class="w-full brutal-border mb-4 img-zoom ocultar-cursor">
+                    <p class="font-bold">O nariz no estilo mangá pode ser bem simplificado. Um pequeno traço ou pontinho já funcionam muito bem para a maioria dos personagens.</p>
+                </div>
+                <div id="aba-orelha" class="grupo-detalhes hidden">
+                    <img src="../image/comic2/quadro08.png" class="w-full brutal-border mb-4 img-zoom ocultar-cursor">
+                    <p class="font-bold">No estilo mangá, podemos criar
+                    vários estilos diferentes de orelhas para os nossos personagens, dos mais simples aos mais complexos.</p>
+                </div>
+            </div>
+
+            <!-- Canvas -->
+            <div class="w-full md:w-1/2 p-6 flex flex-col bg-[var(--comic-red)] wrapper-canvas" data-canvas-id="canvas-passo3">
+            </div>
+        </div>
+
+        <!-- ==========================================
+             PASSO 4: EXPRESSÕES FACIAIS (Com Base)
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow flex flex-col md:flex-row overflow-hidden">
+            <div class="w-full md:w-1/2 p-6 bg-[#f8f8f8] border-b-4 md:border-b-0 md:border-r-4 border-black flex flex-col">
+                <div class="bg-black text-white font-luckiest text-3xl p-2 text-center mb-4 brutal-border transform -rotate-1">PASSO 4: EXPRESSÕES</div>
+                <img src="../image/comic2/quadro09.png" class="w-full brutal-border mb-4 img-zoom ocultar-cursor">
+                <p class="font-bold text-lg">Sobrancelhas, olhos, boca, nariz e orelhas são o segredo da expressão! O quadro ao lado já possui um rosto base de fundo. Tente desenhar diferentes emoções por cima dele!</p>
+            </div>
+
+            <!-- Canvas com a Imagem configurada como Fundo através do atributo data-bg-image -->
+            <div class="w-full md:w-1/2 p-6 flex flex-col bg-[#4a00e0] wrapper-canvas" data-canvas-id="canvas-passo4" data-bg-image="../image/comic10/quadro10.png">
+            </div>
+        </div>
+
+        <!-- ==========================================
+             PASSO 4.1: TIRINHA PASSO A PASSO
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow flex flex-col md:flex-row items-center">
+            <div class="w-full">
+                <img src="../image/comic2/comic-capa.jpg" class="w-full img-zoom ocultar-cursor" alt="Desenho Passo a Passo">
+            </div>
+            </div>
+
+        <!-- ==========================================
+             PASSO 5: O CORPO (Com Carrossel)
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow flex flex-col md:flex-row overflow-hidden">
+            <div class="w-full md:w-1/2 p-6 bg-[#f8f8f8] border-b-4 md:border-b-0 md:border-r-4 border-black flex flex-col relative carousel-container">
+                <div class="bg-black text-white font-luckiest text-3xl p-2 text-center mb-4 brutal-border transform -rotate-1">PASSO 5: O CORPO</div>
+                
+                <div class="slide" data-slide="1">
+                    <img src="../image/comic2/quadro11.png" class="w-full mb-4 img-zoom ocultar-cursor">
+                    <h3 class="font-bangers text-2xl text-[var(--comic-blue)] mb-2">1. CORPO DE FRENTE</h3>
+                    <p class="font-bold">Desenhar o corpo pode parecer complicado, mas com algumas formas básicas, fica fácil. 
+                        Comece com um esqueleto para definir a pose e, depois, adicione formas simples para o tronco, braços e pernas.</p>
+                </div>
+                <div class="slide hidden" data-slide="2">
+                    <img src="../image/comic2/quadro12.png" class="w-full mb-4 img-zoom ocultar-cursor">
+                    <h3 class="font-bangers text-2xl text-[var(--comic-blue)] mb-2">2. CORPO EM TRÊS QUARTOS</h3>
+                    <p class="font-bold">Desenhar o corpo pode parecer complicado, mas com algumas formas básicas, fica fácil. 
+                        Comece com um esqueleto para definir a pose e, depois, adicione formas simples para o tronco, braços e pernas.</p>
+                </div>
+                <div class="slide hidden" data-slide="3">
+                    <img src="../image/comic2/quadro13.png" class="w-full mb-4 img-zoom ocultar-cursor">
+                    <h3 class="font-bangers text-2xl text-[var(--comic-blue)] mb-2">3. CORPO DE PERFIL</h3>
+                    <p class="font-bold">Desenhar o corpo pode parecer complicado, mas com algumas formas básicas, fica fácil. 
+                        Comece com um esqueleto para definir a pose e, depois, adicione formas simples para o tronco, braços e pernas.</p>
+                </div>
+                <div class="slide hidden" data-slide="4">
+                    <img src="../image/comic2/quadro14.png" class="w-full brutal-border mb-4 img-zoom ocultar-cursor">
+                    <h3 class="font-bangers text-2xl text-[var(--comic-blue)] mb-2">4. PROPORÇÕES DO CORPO</h3>
+                    <p class="font-bold">Desenhar o corpo pode parecer complicado, mas com algumas formas básicas, fica fácil. 
+                        Comece com um esqueleto para definir a pose e, depois, adicione formas simples para o tronco, braços e pernas.</p>
+                </div>
+
+                <div class="flex justify-between mt-auto pt-4 gap-2">
+                    <button class="btn-prev w-1/2 bg-[var(--comic-yellow)] brutal-border brutal-shadow-sm font-bangers text-xl py-2 hover:bg-black hover:text-white transition-all">&larr; ANTERIOR</button>
+                    <button class="btn-next w-1/2 bg-[var(--comic-yellow)] brutal-border brutal-shadow-sm font-bangers text-xl py-2 hover:bg-black hover:text-white transition-all">PRÓXIMO &rarr;</button>
+                </div>
+            </div>
+
+            <!-- Canvas -->
+            <div class="w-full md:w-1/2 p-6 flex flex-col bg-[#ff9900] wrapper-canvas" data-canvas-id="canvas-passo5">
+            </div>
+        </div>
+
+        <!-- ==========================================
+             PASSO 6: MÃOS E PÉS
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow flex flex-col md:flex-row overflow-hidden">
+            <div class="w-full md:w-1/2 p-6 bg-[#f8f8f8] border-b-4 md:border-b-0 md:border-r-4 border-black flex flex-col">
+                <div class="bg-black text-white font-luckiest text-3xl p-2 text-center mb-4 brutal-border transform rotate-1">PASSO 6: MÃOS E PÉS</div>
+                <img src="../image/comic2/quadro15.png" class="w-full brutal-border mb-4 img-zoom ocultar-cursor">
+                <p class="font-bold text-lg mb-2">Desenhar mãos pode ser desafiador, mas podemos simplificar ese processo! 
+                    Comece desenhando a sua própria mão, simplificando as os dedos, a palma da mão e as articulações em formas geométricas simples.</p>
+                <p class="font-bold text-lg">Desenhar pés em diferentes ângulos ajuda a dar dinamismo ao seu personagem. 
+                    Vamos desenhar alguns juntos e ver como pequenas mudanças podem fazer grande diferença.</p>
+            </div>
+
+            <!-- Canvas -->
+            <div class="w-full md:w-1/2 p-6 flex flex-col bg-[var(--comic-blue)] wrapper-canvas" data-canvas-id="canvas-passo6">
+            </div>
+        </div>
+
+         <!-- ==========================================
+             PASSO 6.1: TIRINHA PASSO A PASSO
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow flex flex-col md:flex-row items-center">
+            <div class="w-full">
+                <img src="../image/comic2/comic2.jpg" class="w-full img-zoom ocultar-cursor" alt="Desenho Passo a Passo">
+            </div>
+            </div>
+
+
+        <!-- ==========================================
+             PASSO 7: CRIANDO O SEU PERSONAGEM
+             ========================================== -->
+        <div class="w-full bg-white brutal-border brutal-shadow flex flex-col p-6 items-center">
+            <div class="bg-black text-white font-luckiest text-4xl p-4 text-center mb-6 brutal-border transform -rotate-1 max-w-lg w-full">PASSO 7: CRIE O SEU!</div>
+            <p class="font-bold text-xl text-center mb-8 max-w-2xl">Chegou a hora. Junte tudo o que aprendeu. Use a barra de ferramentas abaixo para criar o seu próprio personagem do zero!</p>
+
+            <!-- Um Canvas maior para o final -->
+            <div class="w-full flex flex-col bg-[var(--comic-red)] p-6 wrapper-canvas brutal-border" data-canvas-id="canvas-passo7" data-aspect="aspect-video" data-canvas-w="1280" data-canvas-h="720">
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // =========================================
+        // TEMPLATE DO CANVAS
+        // =========================================
+        const canvasTemplate = `
+            <div class="flex justify-between items-center mb-4 relative z-30">
+                <span class="font-luckiest text-2xl text-white drop-shadow-[2px_2px_0_#111]" style="-webkit-text-stroke: 1px #111; letter-spacing: 2px;">A SUA VEZ:</span>
+                
+                <div class="flex gap-2">
+                    <input type="color" value="#111111" class="seletor-cor w-10 h-10 p-0 border-2 border-black brutal-shadow-sm cursor-pointer" title="Cor">
+                    
+                    <!-- Grupo Pincéis -->
+                    <div class="relative">
+                        <button class="btn-abrir-pinceis p-2 bg-[var(--comic-black)] text-white brutal-border brutal-shadow-sm hover:bg-gray-800 transition-all" title="Pincéis">
+                            <i data-lucide="pen-tool" class="w-5 h-5"></i>
+                        </button>
+                        <div class="modal-pinceis hidden absolute top-12 left-0 md:right-0 md:left-auto bg-white brutal-border brutal-shadow p-4 z-50 flex flex-col gap-3 w-56 text-black text-left">
+                            <label class="font-bangers text-xl block">Pincéis:</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button class="btn-ferramenta-pincel p-2 bg-white brutal-border hover:bg-gray-200 ferramenta-ativa flex justify-center" data-ferramenta="lapis" title="Lápis"><i data-lucide="pencil" class="w-5 h-5"></i></button>
+                                <button class="btn-ferramenta-pincel p-2 bg-white brutal-border hover:bg-gray-200 flex justify-center" data-ferramenta="marcador" title="Marcador"><i data-lucide="highlighter" class="w-5 h-5"></i></button>
+                                <button class="btn-ferramenta-pincel p-2 bg-white brutal-border hover:bg-gray-200 flex justify-center" data-ferramenta="pincel" title="Pincel"><i data-lucide="brush" class="w-5 h-5"></i></button>
+                            </div>
+                            <label class="font-bold text-sm block mt-2">Tamanho do Traço: <span class="lbl-tamanho-pincel text-[var(--comic-red)]">6</span>px</label>
+                            <input type="range" min="1" max="50" value="6" class="input-tamanho-pincel w-full cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Balde de Tinta -->
+                    <button class="btn-ferramenta-direta p-2 bg-white brutal-border brutal-shadow-sm hover:bg-gray-200 transition-all" data-ferramenta="balde" title="Balde de Tinta">
+                        <i data-lucide="paint-bucket" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Grupo Borracha -->
+                    <div class="relative">
+                        <button class="btn-abrir-borracha p-2 bg-white brutal-border brutal-shadow-sm hover:bg-gray-200 transition-all" title="Borracha">
+                            <i data-lucide="eraser" class="w-5 h-5"></i>
+                        </button>
+                        <div class="modal-borracha hidden absolute top-12 right-0 bg-white brutal-border brutal-shadow p-4 z-50 flex flex-col gap-2 w-48 text-black text-left">
+                            <label class="font-bangers text-xl block">Borracha:</label>
+                            <label class="font-bold text-sm block mt-1">Tamanho da Borracha: <span class="lbl-tamanho-borracha text-[var(--comic-red)]">30</span>px</label>
+                            <input type="range" min="5" max="100" value="30" class="input-tamanho-borracha w-full cursor-pointer">
+                        </div>
+                    </div>
+
+                    <button class="btn-limpar p-2 bg-white brutal-border brutal-shadow-sm hover:bg-[var(--comic-red)] hover:text-white transition-all" title="Limpar Tudo">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- O Canvas e o Modal de Limpeza Inline -->
+            <div class="relative w-full aspect-square bg-white brutal-border brutal-shadow-sm overflow-hidden">
+                <canvas width="500" height="500" class="area-desenho w-full h-full"></canvas>
+                
+                <!-- Modal de Confirmação INLINE (Apenas neste canvas) -->
+                <div class="modal-confirmacao-inline hidden absolute inset-0 bg-black/85 flex flex-col items-center justify-center p-4 z-40 text-center">
+                    <h3 class="font-bangers text-4xl mb-4 text-white drop-shadow-[2px_2px_0_var(--comic-red)]">APAGAR TUDO?</h3>
+                    <div class="flex gap-4 w-full max-w-xs">
+                        <button class="btn-cancelar-limpeza flex-1 px-4 py-2 bg-gray-200 brutal-border font-bangers text-xl hover:bg-white active:translate-y-1">NÃO</button>
+                        <button class="btn-confirmar-limpeza flex-1 px-4 py-2 bg-[var(--comic-red)] text-white brutal-border font-bangers text-xl hover:bg-black active:translate-y-1">SIM</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // =========================================
+        // FUNÇÕES DE UI (Carrossel, Abas, Imagem Base)
+        // =========================================
+
+        window.mostrarAba = function(abaId, grupoClass, btnElement) {
+            document.querySelectorAll('.' + grupoClass).forEach(el => el.classList.add('hidden'));
+            document.getElementById(abaId).classList.remove('hidden');
+            
+            document.querySelectorAll('.btn-aba-detalhes').forEach(btn => btn.classList.remove('aba-ativa', 'bg-[var(--comic-blue)]', 'text-white'));
+            btnElement.classList.add('aba-ativa');
+        };
+
+        document.querySelectorAll('.carousel-container').forEach(container => {
+            let index = 0;
+            const slides = container.querySelectorAll('.slide');
+            const btnPrev = container.querySelector('.btn-prev');
+            const btnNext = container.querySelector('.btn-next');
+
+            const updateSlide = () => {
+                slides.forEach((s, i) => {
+                    s.classList.toggle('hidden', i !== index);
+                });
+            };
+
+            btnPrev?.addEventListener('click', () => {
+                index = (index > 0) ? index - 1 : slides.length - 1;
+                updateSlide();
+            });
+            
+            btnNext?.addEventListener('click', () => {
+                index = (index < slides.length - 1) ? index + 1 : 0;
+                updateSlide();
+            });
+        });
+
+        // =========================================
+        // LÓGICA DA LUPA (MAGNIFYING GLASS)
+        // =========================================
+        const lupaLens = document.getElementById('lupa-lens');
+        
+        // --- PROPRIEDADES DA LUPA QUE VOCÊ PODE EDITAR ---
+        const zoomFactor = 1.8; // Ajuste o nível de zoom (2.5 significa 250% maior)
+        const tamanhoLupa = 150; // DEVE SER IGUAL AO 'width' e 'height' LÁ NO CSS (150px)
+        const metadeLupa = tamanhoLupa / 2; // Usado para centralizar o círculo perfeitamente no mouse
+        // -------------------------------------------------
+
+        // Aplica o efeito em todas as imagens com a classe 'img-zoom'
+        document.querySelectorAll('.img-zoom').forEach(img => {
+            
+            img.addEventListener('mouseenter', (e) => {
+                lupaLens.style.opacity = '1';
+                lupaLens.style.backgroundImage = `url('${img.src}')`;
+                
+                // Calcula as dimensões com base no tamanho atual da imagem na tela
+                const rect = img.getBoundingClientRect();
+                lupaLens.style.backgroundSize = `${rect.width * zoomFactor}px ${rect.height * zoomFactor}px`;
+            });
+
+            img.addEventListener('mousemove', (e) => {
+                const rect = img.getBoundingClientRect();
+                
+                // Posição do rato em relação ao canto superior esquerdo da imagem
+                const relX = e.clientX - rect.left;
+                const relY = e.clientY - rect.top;
+
+                // Move a lente circular para acompanhar o rato perfeitamente no centro
+                lupaLens.style.left = `${e.clientX - metadeLupa}px`;
+                lupaLens.style.top = `${e.clientY - metadeLupa}px`;
+
+                // Desloca o background dentro da lente na direção oposta, multiplicada pelo fator de zoom
+                const bgPosX = - (relX * zoomFactor - metadeLupa);
+                const bgPosY = - (relY * zoomFactor - metadeLupa);
+                
+                lupaLens.style.backgroundPosition = `${bgPosX}px ${bgPosY}px`;
+            });
+
+            img.addEventListener('mouseleave', () => {
+                lupaLens.style.opacity = '0';
+            });
+        });
+
+        // =========================================
+        // LÓGICA CORE DOS CANVAS
+        // =========================================
+        
+        document.querySelectorAll('.wrapper-canvas').forEach(wrapper => {
+            const aspectClass = wrapper.getAttribute('data-aspect') || 'aspect-square';
+            const canvasW = wrapper.getAttribute('data-canvas-w') || '500';
+            const canvasH = wrapper.getAttribute('data-canvas-h') || '500';
+
+            let templateCustomizado = canvasTemplate
+                .replace('aspect-square', aspectClass)
+                .replace('width="500"', `width="${canvasW}"`)
+                .replace('height="500"', `height="${canvasH}"`);
+
+            wrapper.innerHTML = templateCustomizado;
+            const canvasId = wrapper.getAttribute('data-canvas-id');
+            const canvas = wrapper.querySelector('canvas');
+            canvas.id = canvasId; 
+            const ctx = canvas.getContext('2d');
+
+            const bgImage = wrapper.getAttribute('data-bg-image');
+            if (bgImage) {
+                canvas.style.backgroundImage = `url('${bgImage}')`;
+                canvas.style.backgroundSize = 'cover';
+                canvas.style.backgroundPosition = 'center';
+                canvas.style.backgroundColor = '#ffffff'; 
+            }
+
+            let desenhando = false;
+            let corAtual = '#111111';
+            let ferramentaAtual = 'lapis';
+            let ultimoPincel = 'lapis'; 
+            
+            let espessuraPincel = 6;
+            let espessuraBorracha = 30;
+
+            const inputCor = wrapper.querySelector('.seletor-cor');
+            const btnAbrirPinceis = wrapper.querySelector('.btn-abrir-pinceis');
+            const modalPinceis = wrapper.querySelector('.modal-pinceis');
+            const btnBalde = wrapper.querySelector('.btn-ferramenta-direta');
+            const btnAbrirBorracha = wrapper.querySelector('.btn-abrir-borracha');
+            const modalBorracha = wrapper.querySelector('.modal-borracha');
+            const inputTamanhoPincel = wrapper.querySelector('.input-tamanho-pincel');
+            const lblTamanhoPincel = wrapper.querySelector('.lbl-tamanho-pincel');
+            const inputTamanhoBorracha = wrapper.querySelector('.input-tamanho-borracha');
+            const lblTamanhoBorracha = wrapper.querySelector('.lbl-tamanho-borracha');
+            const botoesPincelInternos = wrapper.querySelectorAll('.btn-ferramenta-pincel');
+            const btnLimpar = wrapper.querySelector('.btn-limpar');
+            const modalLimpar = wrapper.querySelector('.modal-confirmacao-inline');
+            const btnConfirmarLimpar = wrapper.querySelector('.btn-confirmar-limpeza');
+            const btnCancelarLimpar = wrapper.querySelector('.btn-cancelar-limpeza');
+
+            function atualizarDestaques() {
+                btnAbrirPinceis.classList.remove('bg-[var(--comic-black)]', 'text-white');
+                btnAbrirBorracha.classList.remove('bg-[var(--comic-black)]', 'text-white');
+                btnBalde.classList.remove('bg-[var(--comic-black)]', 'text-white');
+
+                if (['lapis', 'marcador', 'pincel'].includes(ferramentaAtual)) {
+                    btnAbrirPinceis.classList.add('bg-[var(--comic-black)]', 'text-white');
+                    canvas.style.cursor = 'crosshair';
+                } else if (ferramentaAtual === 'borracha') {
+                    btnAbrirBorracha.classList.add('bg-[var(--comic-black)]', 'text-white');
+                    canvas.style.cursor = 'cell';
+                } else if (ferramentaAtual === 'balde') {
+                    btnBalde.classList.add('bg-[var(--comic-black)]', 'text-white');
+                    canvas.style.cursor = 'crosshair';
+                }
+            }
+
+            btnAbrirPinceis.addEventListener('click', () => {
+                if (!['lapis', 'marcador', 'pincel'].includes(ferramentaAtual)) {
+                    ferramentaAtual = ultimoPincel;
+                }
+                modalPinceis.classList.toggle('hidden');
+                modalBorracha.classList.add('hidden');
+                atualizarDestaques();
+            });
+
+            btnBalde.addEventListener('click', () => {
+                ferramentaAtual = 'balde';
+                modalPinceis.classList.add('hidden');
+                modalBorracha.classList.add('hidden');
+                atualizarDestaques();
+            });
+
+            btnAbrirBorracha.addEventListener('click', () => {
+                ferramentaAtual = 'borracha';
+                modalBorracha.classList.toggle('hidden');
+                modalPinceis.classList.add('hidden');
+                atualizarDestaques();
+            });
+
+            inputCor.addEventListener('input', (e) => corAtual = e.target.value);
+            
+            inputTamanhoPincel.addEventListener('input', (e) => {
+                espessuraPincel = e.target.value;
+                lblTamanhoPincel.textContent = espessuraPincel;
+            });
+
+            inputTamanhoBorracha.addEventListener('input', (e) => {
+                espessuraBorracha = e.target.value;
+                lblTamanhoBorracha.textContent = espessuraBorracha;
+            });
+
+            botoesPincelInternos.forEach(botao => {
+                botao.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    botoesPincelInternos.forEach(b => b.classList.remove('ferramenta-ativa'));
+                    botao.classList.add('ferramenta-ativa');
+                    ferramentaAtual = botao.getAttribute('data-ferramenta');
+                    ultimoPincel = ferramentaAtual;
+                    atualizarDestaques();
+                });
+            });
+
+            btnLimpar.addEventListener('click', () => modalLimpar.classList.remove('hidden'));
+            btnCancelarLimpar.addEventListener('click', () => modalLimpar.classList.add('hidden'));
+            btnConfirmarLimpar.addEventListener('click', () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                modalLimpar.classList.add('hidden');
+            });
+
+            function pegarPosicao(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+            }
+
+            function preencherCor(startX, startY, fillColorHex) {
+                const w = canvas.width, h = canvas.height;
+                startX = Math.floor(startX); startY = Math.floor(startY);
+                const imageData = ctx.getImageData(0, 0, w, h);
+                const data = new Uint32Array(imageData.data.buffer);
+                const startPos = startY * w + startX;
+                const targetColor = data[startPos];
+
+                const r = parseInt(fillColorHex.slice(1, 3), 16);
+                const g = parseInt(fillColorHex.slice(3, 5), 16);
+                const b = parseInt(fillColorHex.slice(5, 7), 16);
+                const fillC = (255 << 24) | (b << 16) | (g << 8) | r;
+
+                if (targetColor === fillC) return;
+                const stack = [startPos];
+
+                while (stack.length > 0) {
+                    let pos = stack.pop(), y = Math.floor(pos / w), x = pos % w;
+                    while (y > 0 && data[pos - w] === targetColor) { pos -= w; y--; }
+                    let reachLeft = false, reachRight = false;
+                    while (y < h && data[pos] === targetColor) {
+                        data[pos] = fillC;
+                        if (x > 0) {
+                            if (data[pos - 1] === targetColor) {
+                                if (!reachLeft) { stack.push(pos - 1); reachLeft = true; }
+                            } else if (reachLeft) reachLeft = false;
+                        }
+                        if (x < w - 1) {
+                            if (data[pos + 1] === targetColor) {
+                                if (!reachRight) { stack.push(pos + 1); reachRight = true; }
+                            } else if (reachRight) reachRight = false;
+                        }
+                        pos += w; y++;
+                    }
+                }
+                ctx.putImageData(imageData, 0, 0);
+            }
+
+            function comecarDesenho(e) {
+                modalPinceis.classList.add('hidden');
+                modalBorracha.classList.add('hidden');
+
+                const pos = pegarPosicao(e);
+                if (ferramentaAtual === 'balde') {
+                    preencherCor(pos.x, pos.y, corAtual);
+                    return;
+                }
+                
+                desenhando = true;
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = corAtual;
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                ctx.lineWidth = (ferramentaAtual === 'borracha') ? espessuraBorracha : espessuraPincel;
+
+                if (ferramentaAtual === 'marcador') {
+                    ctx.lineCap = 'square';
+                } else if (ferramentaAtual === 'pincel') {
+                    ctx.shadowColor = corAtual;
+                    ctx.shadowBlur = Math.max(10, espessuraPincel * 1.5);
+                } else if (ferramentaAtual === 'borracha') {
+                    ctx.globalCompositeOperation = 'destination-out';
+                }
+
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+
+            function desenhar(e) {
+                if (!desenhando || ferramentaAtual === 'balde') return;
+                e.preventDefault();
+                const pos = pegarPosicao(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+
+            function pararDesenho() {
+                if (desenhando) { desenhando = false; ctx.beginPath(); }
+            }
+
+            canvas.addEventListener('mousedown', comecarDesenho);
+            canvas.addEventListener('mousemove', desenhar);
+            canvas.addEventListener('mouseup', pararDesenho);
+            canvas.addEventListener('mouseout', pararDesenho);
+            canvas.addEventListener('touchstart', comecarDesenho, { passive: false });
+            canvas.addEventListener('touchmove', desenhar, { passive: false });
+            canvas.addEventListener('touchend', pararDesenho);
+        });
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
