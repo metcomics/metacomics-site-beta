@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcomic Interativa: Desenhe o Gatinho | Metacomics</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../CSS/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --comic-yellow: #F2DA63;
+            --comic-red: #d62552; /* Vermelho da caneta do Alien */
+            --comic-blue: #8993d0; /* Roxo/Azul do mapa */
+            --comic-black: #111111;
+            --comic-white: #fdfdfd;
+        }
+
+        #btn-salvar {
+            font-family: 'Luckiest Guy', sans-serif;
+        }
+
+        #quadro-desenho {
+            cursor: crosshair;
+            touch-action: none; 
+        }
+
+    .bg-pattern-overlay {
+    position: fixed; /* Mantém o fundo fixo enquanto rola a página */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Coloca atrás de todo o conteúdo (seu conteúdo é z-10) */
+    background-image: url('../image/comic4/estrelas.png');/* Substitua pelo caminho correto da sua imagem */ 
+    background-repeat: repeat; /* Faz a imagem se repetir */
+    background-position: center;
+    opacity: 0.6; /* Opcional: ajusta a opacidade para não brigar com o conteúdo */
+}
+    </style>
+</head>
+<body class="p-4 md:p-10 flex flex-col items-center min-h-screen relative z-10 bg-[#494B98]">
+    
+    <div class="bg-pattern-overlay"></div>
+
+    <header class="mb-8 text-center max-w-2xl">
+        <h1 class="text-6x1 md:text-7xl text-white drop-shadow-[4px_4px_0_var(--comic-black)] mb-4 tracking-wider uppercase" style="-webkit-text-stroke: 1px #111;">UM NOVO OLHAR</h1>
+        <p class="text-xl font-bold bg-[var(--comic-yellow)] text-black px-6 py-2 brutal-border inline-block transform -rotate-2 brutal-shadow">roteiro, desenho e programação por Pâmela de Castro</p>
+    </header>
+
+    <main id="tira-completa" class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 md:p-10 brutal-border brutal-shadow mb-8 overflow-hidden"">
+        
+        <div class="bg-white p-2 flex flex-col">
+            <img src="../image/comic4/quadro01.png" class="w-full h-auto object-cover"  alt="Quadro 1 - Aliens observando o mapa">
+        </div>
+
+        <div class="bg-white p-2 flex flex-col">
+            <img src="../image/comic4/quadro02.png" class="w-full h-auto object-cover" alt="Quadro 2 - Alien reclamando dos humanos">
+        </div>
+
+        <div class="bg-black p-2 flex flex-col md:col-span-2 border-4 border-[var(--comic-black)] relative rounded-2xl">
+            
+            <div class="flex justify-between items-center mb-3 bg-gray-100 p-2 rounded-2xl">
+                <h4 class="text-lg text-[var(--comic-black)] flex items-center gap-2 uppercase tracking-wider">
+                    <i data-lucide="pencil" class="text-[var(--comic-red)]"></i> ...Afinal, O que você vê na Terra?
+                </h4>
+                
+                <div class="flex gap-2 items-center" data-html2canvas-ignore> 
+                    <button class="w-6 h-6 rounded-full bg-[#111111] border-2 border-black color-btn transition-transform" data-color="#111111"></button>
+                    <button class="w-6 h-6 rounded-full bg-[var(--comic-red)] border-2 border-black color-btn scale-125 ring-2 ring-black" data-color="#d62552"></button> 
+                    <button class="w-6 h-6 rounded-full bg-white border-2 border-black color-btn transition-transform" data-color="#ffffff"></button>
+                    
+                    <select id="tamanho-pincel" class="ml-2 border-2 border-black font-bold text-sm px-2 py-1 outline-none">
+                        <option value="3">Fino</option>
+                        <option value="6" selected>Médio</option>
+                        <option value="12">Grosso</option>
+                    </select>
+                    
+                    <button id="btn-limpar" class="bg-white hover:bg-gray-200 border-2 border-black p-1 ml-1" title="Apagar Desenho">
+                        <i data-lucide="eraser" class="w-5 h-5 text-black"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative w-full aspect-[21/10] bg-black border-4 border-white overflow-hidden rounded-2xl">
+                <img src="../image/comic4/quadro03.png" class="absolute inset-0 w-full h-full object-cover pointer-events-none"  alt="Monitor com mapa múndi">
+                
+                <canvas id="quadro-desenho" width="1000" height="476" class="absolute inset-0 w-full h-full z-10"></canvas>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:col-span-2 -mx-6 md:-mx-6 -mb-6 md:-mb-10 mt-2">
+            <img src="../image/comic4/quadro04.png" class="w-full h-auto object-cover block" alt="Quadro 4 - Reação ao gatinho">
+        </div>
+
+        <!-- BOTÃO DE VOLTAR NO FINAL DA PÁGINA (Sempre visível no rodapé) -->
+    <footer class="w-full max-w-2xl mt-auto pt-10 pb-6 conteudo-hq flex justify-center">
+        <a href="../index.html" class="bg-[var(--comic-red)] hover:bg-black text-white px-8 py-4 font-luckiest text-2xl brutal-border brutal-shadow transition-all active:translate-y-1 flex items-center gap-3 no-underline">
+            <i data-lucide="arrow-left" class="w-6 h-6"></i> VOLTAR PARA WEBCOMICS
+        </a>
+    </footer>
+
+    </main>
+
+
+    <script>
+        lucide.createIcons();
+
+        // LÓGICA DO CANVAS DE DESENHO
+        const canvas = document.getElementById('quadro-desenho');
+        const ctx = canvas.getContext('2d');
+        let desenhando = false;
+        let corAtual = '#d62552'; // Começa com o vermelho da caneta do alien
+        let espessuraAtual = 6;
+
+        ctx.lineCap = 'round'; 
+        ctx.lineJoin = 'round';
+        // REMOVIDO: Preenchimento branco inicial para manter o fundo transparente
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+        }
+
+        function comecarDesenho(e) {
+            e.preventDefault(); 
+            desenhando = true;
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function desenhar(e) {
+            if (!desenhando) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            ctx.strokeStyle = corAtual;
+            ctx.lineWidth = espessuraAtual;
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        }
+
+        function pararDesenho() {
+            desenhando = false;
+            ctx.closePath();
+        }
+
+        canvas.addEventListener('mousedown', comecarDesenho);
+        canvas.addEventListener('mousemove', desenhar);
+        canvas.addEventListener('mouseup', pararDesenho);
+        canvas.addEventListener('mouseout', pararDesenho);
+        canvas.addEventListener('touchstart', comecarDesenho, {passive: false});
+        canvas.addEventListener('touchmove', desenhar, {passive: false});
+        canvas.addEventListener('touchend', pararDesenho);
+        canvas.addEventListener('touchcancel', pararDesenho);
+
+        // Controles de Cor
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                corAtual = e.target.dataset.color;
+                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('scale-125', 'ring-2', 'ring-black'));
+                e.target.classList.add('scale-125', 'ring-2', 'ring-black');
+            });
+        });
+
+        // Controles de Espessura e Limpeza
+        document.getElementById('tamanho-pincel').addEventListener('change', (e) => { espessuraAtual = e.target.value; });
+        
+        // ALTERADO: Limpar agora apaga o desenho mantendo a transparência para ver a imagem de fundo
+        document.getElementById('btn-limpar').addEventListener('click', () => { 
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+        });
+
+    </script>
+</body>
+</html>

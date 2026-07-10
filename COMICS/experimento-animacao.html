@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metacomics Interativo | O Ciclo do Descarte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../CSS/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    
+    <style>
+       
+        .panel-standard { background-color: #ffffff; }
+        .panel-interactive { background-color: #ffffff; } /* Cor Laranja */
+
+        .bg-pattern-overlay {
+            position: fixed; /* Mantém o fundo fixo enquanto rola a página */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Coloca atrás de todo o conteúdo (seu conteúdo é z-10) */
+            background-image: url('../image/comic8/papel.png');/* Substitua pelo caminho correto da sua imagem */ 
+            background-repeat: repeat; /* Faz a imagem se repetir */
+            background-position: center;
+            opacity: 0.8; /* Opcional: ajusta a opacidade para não brigar com o conteúdo */
+    }
+
+        /* --- ANIMAÇÕES CSS (Ciclo de Descarte) --- */
+        /* 1. Animação do Quadro Normal AMASSANDO */
+        @keyframes crumple {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
+            100% { transform: scale(0.01) rotate(360deg); opacity: 0; filter: brightness(0.2); }
+        }
+        .anim-crumple {
+            animation: crumple 0.6s ease-in-out forwards;
+        }
+
+        /* 2. Animação da Bolinha APARECENDO */
+        @keyframes ball-appear {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .anim-ball-appear {
+            animation: ball-appear 0.6s ease-out forwards;
+        }
+
+       /* 3. Animação da Bolinha CAINDO */
+        /* 👇 AQUI ESTÁ A MUDANÇA: translateY(2000px) aumenta muito a distância da queda vertical */
+        @keyframes ball-discard {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(2000px) rotate(720deg); opacity: 0; }
+        }
+        .anim-ball-discard {
+            animation: ball-discard 1.3s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-10 flex flex-col items-center min-h-screen relative overflow-x-hidden">
+
+    <div class="bg-pattern-overlay"></div>
+    
+    <header class="mb-8 text-center max-w-2xl z-10 relative">
+         <h1 class="text-5xl md:text-6xl text-[var(--comic-white)] drop-shadow-[3px_3px_0_var(--comic-black)] mb-4 uppercase tracking-wide" style="-webkit-text-stroke: 1px #111;">O Criar</h1>
+        <p class="text-xl font-bold bg-white text-black px-4 py-2 brutal-border inline-block transform -rotate-2 brutal-shadow">Roteiro, desenho e programação por Pâmela de Castro</p>
+    </header>
+
+    <div class="page-container brutal-border brutal-shadow grid grid-cols-1 md:grid-cols-3 gap-6 bg-white pt-6 px-6 md:pt-10 md:px-10 pb-0 w-full max-w-6xl mx-auto z-10 relative overflow-hidden">
+        
+        <div id="panel-1" class="panel panel-standard flex flex-col aspect-[3/4] overflow-hidden">
+            <img src="../image/comic8/quadro01.png" alt="Painel 1" class="w-full h-full object-cover">
+        </div>
+
+        <div id="panel-2" class="panel panel-standard flex flex-col aspect-[3/4] overflow-hidden">
+            <img src="../image/comic8/quadro02.png"  alt="Painel 2" class="w-full h-full object-cover">
+        </div>
+
+        <div id="comic-panel-container" 
+             class="panel panel-interactive flex flex-col relative cursor-pointer group aspect-[3/4]"
+             onclick="startCrumpleCycle()">
+            
+            <img id="current-drawing" 
+                 src="../image/comic8/quadro03_1.png" 
+                 class="w-full h-full object-cover origin-center z-10" 
+                 alt="Desenho da Comic">
+
+            <img id="crumpled-ball" 
+                 src="../image/comic8/bolinha-papel.png" 
+                 class="absolute inset-0 m-auto w-1/2 h-auto opacity-0 scale-0 z-20 pointer-events-none drop-shadow-2xl" 
+                 alt="Bolinha de Papel Amassada">
+            
+            <div class="absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30">
+                <i data-lucide="hand" class="w-16 h-16 text-[var(--comic-yellow)] drop-shadow-lg animate-pulse"></i>
+            </div>
+        </div>
+
+        <div id="panel-4" class="panel panel-standard flex flex-col aspect-[7/13] md:col-span-3 items-center overflow-hidden -mx-6 md:-mx-10">
+            <img src="../image/comic8/quadro04.png" alt="Painel 4" class="w-full h-full object-cover">
+        </div>
+    </div>
+
+     <!-- BOTÃO DE VOLTAR NO FINAL DA PÁGINA (Sempre visível no rodapé) -->
+    <footer class="w-full max-w-2xl mt-auto pt-10 pb-6 conteudo-hq flex justify-center">
+        <a href="../index.html" class="bg-[var(--comic-red)] hover:bg-black text-white px-8 py-4 font-luckiest text-2xl brutal-border brutal-shadow transition-all active:translate-y-1 flex items-center gap-3 no-underline">
+            <i data-lucide="arrow-left" class="w-6 h-6"></i> VOLTAR PARA WEBCOMICS
+        </a>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Configurações do Ciclo
+        // Troquei os caminhos para placeholders apenas para você ver funcionando caso não tenha as imagens fatiadas ainda,
+        // Mas os seus caminhos originais estão comentados abaixo!
+        const drawings = [
+            "../image/comic8/quadro03_1.png",
+            "../image/comic8/quadro03_2.png",
+            "../image/comic8/quadro03_3.png",
+            "../image/comic8/quadro03_4.png"
+        ];
+        
+        let currentIndex = 0;
+        let isAnimating = false;
+
+        // Elementos do DOM
+        const container = document.getElementById('comic-panel-container');
+        const drawingImg = document.getElementById('current-drawing');
+        const ballImg = document.getElementById('crumpled-ball');
+
+        function startCrumpleCycle() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            // 1. Inicia as animações de "amassar"
+            drawingImg.classList.add('anim-crumple');
+            ballImg.classList.add('anim-ball-appear');
+
+            // 2. Após a bolinha aparecer (0.6s), inicia a animação de descarte
+            setTimeout(() => {
+                ballImg.classList.remove('anim-ball-appear');
+                ballImg.classList.add('anim-ball-discard');
+            }, 600); 
+
+            // 3. Após a bolinha cair, recarrega o próximo quadro
+            setTimeout(() => {
+                loadNextDrawing();
+            }, 1800); 
+        }
+
+        function loadNextDrawing() {
+            // Atualiza o índice (ciclo de 0 a 3)
+            currentIndex = (currentIndex + 1) % drawings.length;
+
+            // Atualiza a imagem do desenho
+            // Tenta carregar a imagem original. Adicionei uma verificação de fallback para o placeholder
+            drawingImg.src = drawings[currentIndex];
+            drawingImg.onerror = function() {
+                this.src = placeholderDrawings[currentIndex];
+            };
+
+            // Reseta o estado visual das imagens
+            drawingImg.classList.remove('anim-crumple');
+            void drawingImg.offsetWidth; // Força reflow
+
+            ballImg.classList.remove('anim-ball-discard');
+            void ballImg.offsetWidth; // Força reflow
+
+            // Libera para o usuário clicar novamente
+            isAnimating = false;
+        }
+    </script>
+</body>
+</html>

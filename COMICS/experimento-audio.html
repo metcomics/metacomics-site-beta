@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcomic Interativa: Explosão de Cores | Metacomics</title>
+    <link rel="stylesheet" href="../CSS/style.css">
+    <!-- Tailwind CSS e Fontes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --comic-red: #ff3366;
+            --comic-blue: #00ccff;
+            --comic-yellow: #ffcc00;
+            --comic-green: #00ff99;
+            --comic-purple: #9d00ff;
+            --comic-black: #111111;
+        }
+
+        body { 
+            font-family: 'Quicksand', sans-serif; 
+            background-color: #f4f4f5; 
+            overflow-x: hidden;
+        }
+        
+        .font-luckiest { font-family: 'Luckiest Guy', cursive; font-weight: normal; letter-spacing: 1px; }
+
+        .brutal-border { border: 4px solid var(--comic-black); }
+        .brutal-shadow { box-shadow: 8px 8px 0 var(--comic-black); }
+        .brutal-shadow-sm { box-shadow: 4px 4px 0 var(--comic-black); }
+        
+        
+
+        /* O Canvas de fundo agora cobre a tela inteira */
+        #tinta-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0; /* Fica atrás dos quadros da HQ */
+            pointer-events: none; /* Deixa os cliques passarem para a HQ */
+        }
+
+        /* Garante que o conteúdo fique por cima da tinta */
+        .conteudo-hq {
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-10 min-h-screen flex flex-col items-center relative">
+    
+    <div class="bg-pattern-overlay"></div>
+
+    <!-- CANVAS NO BACKGROUND -->
+    <canvas id="tinta-canvas"></canvas>
+
+    <header class="mb-8 text-center max-w-4xl w-full conteudo-hq flex flex-col items-center mt-4">
+        <h1 class="text-5xl md:text-7xl font-luckiest text-[#ff4d85] drop-shadow-[4px_4px_0_var(--comic-black)] mb-4" style="-webkit-text-stroke: 2px #111;">
+            SINFONIA CROMÁTICA
+        </h1>
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-center">
+            <p class="text-xl font-bold bg-white px-6 py-2 brutal-border brutal-shadow-sm inline-block transform -rotate-1">
+                Toque um instrumento ou cante para pintar ao redor da tirinha!
+            </p>
+            <button id="btn-limpar" class="bg-[#8fb339] hover:bg-black text-white px-4 py-2 font-luckiest text-xl brutal-border brutal-shadow-sm transition-all active:translate-y-1 flex items-center gap-2">
+                <i data-lucide="trash-2" class="w-5 h-5"></i> LIMPAR FUNDO
+            </button>
+        </div>
+    </header>
+
+    <!-- TELA DE AUTORIZAÇÃO DO MICROFONE -->
+    <div id="tela-permissao" class="w-full max-w-2xl bg-[#ff4d85] brutal-border brutal-shadow p-10 text-center flex flex-col items-center justify-center mb-12 conteudo-hq">
+        <i data-lucide="music" class="w-20 h-20 mb-6 text-white drop-shadow-[2px_2px_0_#111]"></i>
+        <h2 class="font-luckiest text-4xl mb-4 text-white drop-shadow-[2px_2px_0_#111]" style="-webkit-text-stroke: 1px #111;">PREPARE O SEU INSTRUMENTO!</h2>
+        <p class="font-bold text-xl mb-8 text-white">Esta HQ reage à música. Permita o acesso ao microfone para que as notas musicais se transformem em cores fluidas.</p>
+        <button id="btn-iniciar" class="px-8 py-4 bg-[#fdf6d2] text-black hover:bg-black hover:text-white brutal-border brutal-shadow-sm font-luckiest text-3xl transition-all active:translate-y-2 active:shadow-none">
+            PERMITIR MICROFONE E TOCAR
+        </button>
+        <p id="msg-erro" class="text-red-600 font-bold mt-4 hidden bg-white p-2 border-2 border-black">Não foi possível acessar o microfone. Verifique as permissões do seu navegador.</p>
+    </div>
+
+    <!-- A WEBCOMIC CENTRALIZADA -->
+    <main id="container-comic" class="w-full max-w-7xl flex flex-col gap-6 hidden pb-10 conteudo-hq items-center">
+        
+        <!-- Quadro Único: A Tirinha Musical -->
+        <div id="quadro-origem" class="w-full bg-transparent relative flex flex-col p-2 md:p-4 transform transition-transform hover:scale-[1.02]">
+            
+            <img src="../image/comic10/quadro1.jpg" class="w-full h-auto brutal-border brutal-shadow" alt="Tirinha Musical: Quando caminhos se cruzam a mudança acontece">
+            
+            <!-- Legenda Dinâmica de Cores baseada na paleta da imagem -->
+            <div class="mt-6 p-4 bg-white flex flex-col md:flex-row gap-4 justify-between items-center brutal-border brutal-shadow-sm">
+                <p class="font-luckiest text-2xl tracking-wide">GUIA DE FREQUÊNCIAS:</p>
+                <div class="flex flex-wrap justify-center gap-2">
+                    <span class="px-3 py-1 bg-[#8fb339] text-white font-bold border-2 border-black">GRAVES (Baixo)</span>
+                    <span class="px-3 py-1 bg-[#ff4d85] text-white font-bold border-2 border-black">MÉDIOS (Base/Voz)</span>
+                    <span class="px-3 py-1 bg-[#fdf6d2] text-black font-bold border-2 border-black">AGUDOS (Solos)</span>
+                </div>
+            </div>
+        </div>
+
+                <!-- BOTÃO DE VOLTAR NO FINAL DA PÁGINA (Sempre visível no rodapé) -->
+    <footer class="w-full max-w-2xl mt-auto pt-10 pb-6 conteudo-hq flex justify-center">
+        <a href="../index.html" class="bg-[var(--comic-red)] hover:bg-black text-white px-8 py-4 font-luckiest text-2xl brutal-border brutal-shadow transition-all active:translate-y-1 flex items-center gap-3 no-underline">
+            <i data-lucide="arrow-left" class="w-6 h-6"></i> VOLTAR PARA WEBCOMICS
+        </a>
+    </footer>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        const btnIniciar = document.getElementById('btn-iniciar');
+        const btnLimpar = document.getElementById('btn-limpar');
+        const telaPermissao = document.getElementById('tela-permissao');
+        const containerComic = document.getElementById('container-comic');
+        const msgErro = document.getElementById('msg-erro');
+        
+        // Quadro de onde a tinta deve sair
+        const quadroOrigem = document.getElementById('quadro-origem');
+        
+        const canvas = document.getElementById('tinta-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Variáveis da Web Audio API
+        let audioContext;
+        let analyser;
+        let microphone;
+        let dataArray;
+        let isListening = false;
+
+        // Configuração Fina das Frequências Baseada na Paleta da Imagem
+        // As cores foram extraídas da imagem enviada (Verde Oliva, Rosa/Magenta, Creme)
+        const faixasTinta = [
+            { nome: 'Grave', min: 1, max: 6, corHex: '#8fb339', volume: 0, threshold: 120 },   // Verde Oliva (Baixo/Bumbo)
+            { nome: 'Medios', min: 7, max: 15, corHex: '#ff4d85', volume: 0, threshold: 60 },  // Rosa Magenta (SENSÍVEL: Guitarras/Voz)
+            { nome: 'Agudo', min: 16, max: 45, corHex: '#fdf6d2', volume: 0, threshold: 40 }   // Creme (MUITO SENSÍVEL: Pratos/Notas Altas)
+        ];
+
+        // Ajusta o tamanho do canvas de fundo
+        function ajustarCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', ajustarCanvas);
+        ajustarCanvas(); // Chamada inicial
+
+        // Limpar a tela de fundo
+        btnLimpar.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // =========================================
+        // ALGORITMO DE TINTA FLUIDA (Estilo Viscoso / Splash)
+        // =========================================
+        function desenharManchaFluida(origemX, origemY, destX, destY, cor, tamanhoBase) {
+            ctx.fillStyle = cor;
+            ctx.strokeStyle = cor;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // 1. Calcula a direção da tinta a voar
+            const dx = destX - origemX;
+            const dy = destY - origemY;
+            const anguloVoo = Math.atan2(dy, dx);
+
+            // 2. Desenha os filetes de tinta escorrendo (Efeito Líquido mais fino)
+            const numeroGotas = Math.floor(Math.random() * 6) + 3;
+            for (let i = 0; i < numeroGotas; i++) {
+                // Espalha as gotas lateralmente
+                const anguloGota = anguloVoo + (Math.random() - 0.5) * 2.5; 
+                // Estica bastante a distância para parecer líquido projetado
+                const distanciaGota = tamanhoBase * 1.5 + (Math.random() * tamanhoBase * 6);
+                // GOTAS MAIS DELICADAS: Reduzido de 0.6 para 0.35
+                const tamanhoGota = Math.max(1.5, Math.random() * tamanhoBase * 0.35); 
+                
+                const gotaX = destX + Math.cos(anguloGota) * distanciaGota;
+                const gotaY = destY + Math.sin(anguloGota) * distanciaGota;
+
+                // Desenha o filete curvo conectando a mancha central à gota
+                ctx.beginPath();
+                ctx.moveTo(destX, destY);
+                
+                // Ponto de controle para fazer a curva bem orgânica e em formato de arco
+                const controlX = destX + Math.cos(anguloGota - (Math.random() * 0.8)) * distanciaGota * 0.5;
+                const controlY = destY + Math.sin(anguloGota - (Math.random() * 0.8)) * distanciaGota * 0.5;
+                
+                ctx.quadraticCurveTo(controlX, controlY, gotaX, gotaY);
+                // FILETES BEM MAIS FINOS: Reduzido de 1.8 para 0.3 (cerca de 30% da gota)
+                ctx.lineWidth = Math.max(0.5, tamanhoGota * 0.3); 
+                ctx.stroke();
+
+                // Desenha a "cabeça" arredondada da gota na ponta
+                ctx.beginPath();
+                ctx.arc(gotaX, gotaY, tamanhoGota, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Pequenos respingos secundários voando para além da gota principal
+                if (Math.random() > 0.4) {
+                    const extraX = gotaX + Math.cos(anguloGota) * (tamanhoGota * 3);
+                    const extraY = gotaY + Math.sin(anguloGota) * (tamanhoGota * 3);
+                    ctx.beginPath();
+                    // Respingos ainda menores
+                    ctx.arc(extraX, extraY, tamanhoGota * 0.4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // 3. Mancha central (o ponto de impacto)
+            ctx.beginPath();
+            for (let i = 0; i < Math.PI * 2; i += 0.4) {
+                // Alonga um pouco o raio na direção do voo para dar noção de inércia
+                const fatorAlongamento = Math.abs(Math.cos(i - anguloVoo)) * 0.5 + 0.8;
+                // Centro da mancha menos "gordo" e mais proporcional aos filetes finos
+                const raioIrregular = tamanhoBase * (0.5 + Math.random() * 0.5) * fatorAlongamento; 
+                
+                const rx = destX + Math.cos(i) * raioIrregular;
+                const ry = destY + Math.sin(i) * raioIrregular;
+                
+                ctx.arc(rx, ry, tamanhoBase * 0.5, 0, Math.PI * 2);
+            }
+            ctx.fill();
+        }
+
+        async function iniciarMicrofone() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.smoothingTimeConstant = 0.5; // Resposta super rápida
+                analyser.fftSize = 256;
+                
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                
+                telaPermissao.classList.add('hidden');
+                containerComic.classList.remove('hidden');
+                
+                ajustarCanvas();
+                isListening = true;
+                
+                loopPintura();
+
+            } catch (err) {
+                console.error("Erro ao acessar o microfone: ", err);
+                msgErro.classList.remove('hidden');
+            }
+        }
+
+        // Timer para evitar sobrecarga visual
+        let ultimoSplatter = 0;
+
+        function loopPintura() {
+            if (!isListening) return;
+
+            requestAnimationFrame(loopPintura);
+            analyser.getByteFrequencyData(dataArray);
+
+            const agora = Date.now();
+            
+            // Descobre o centro do Quadro 3 (A origem da tinta)
+            const rectOrigem = quadroOrigem.getBoundingClientRect();
+            // X e Y em relação ao viewport atual
+            const centroX = rectOrigem.left + (rectOrigem.width / 2);
+            const centroY = rectOrigem.top + (rectOrigem.height / 2);
+
+            // Analisa as faixas
+            faixasTinta.forEach(faixa => {
+                let somaFaixa = 0;
+                let count = 0;
+                for (let i = faixa.min; i <= faixa.max; i++) {
+                    somaFaixa += dataArray[i];
+                    count++;
+                }
+                faixa.volume = somaFaixa / count;
+
+                // Usa o THRESHOLD dinâmico de cada faixa
+                // Cooldown menor (80ms) permite mais "gotas" no mesmo grito
+                if (faixa.volume > faixa.threshold && (agora - ultimoSplatter > 80)) {
+                    
+                    if (Math.random() < 0.7) {
+                        
+                        // Decide o ângulo para onde a tinta vai voar a partir do centro
+                        const anguloTiro = Math.random() * Math.PI * 2;
+                        
+                        // A distância do voo depende da força do som (volume)
+                        const forcaTiro = 100 + (faixa.volume * (Math.random() * 3));
+                        
+                        // Posição final onde a tinta vai bater no fundo
+                        const destX = centroX + Math.cos(anguloTiro) * forcaTiro;
+                        const destY = centroY + Math.sin(anguloTiro) * forcaTiro;
+                        
+                        // Tamanho da mancha proporcional à diferença do volume pro threshold
+                        const tamanhoMancha = 15 + ((faixa.volume - faixa.threshold) / 2); 
+                        
+                        desenharManchaFluida(centroX, centroY, destX, destY, faixa.corHex, tamanhoMancha);
+                        ultimoSplatter = agora;
+                    }
+                }
+            });
+        }
+
+        btnIniciar.addEventListener('click', iniciarMicrofone);
+
+    </script>
+</body>
+</html>

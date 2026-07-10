@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Som na Caixa | Metacomics</title>
+    <link rel="stylesheet" href="../CSS/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        .bg-pattern-overlay {
+        position: fixed; /* Mantém o fundo fixo enquanto rola a página */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1; /* Coloca atrás de todo o conteúdo (seu conteúdo é z-10) */
+        background-image: url('../image/comic1/waves.png');/* Substitua pelo caminho correto da sua imagem */ 
+        background-repeat: repeat; /* Faz a imagem se repetir */
+        background-position: center;
+        opacity: 0.8; /* Opcional: ajusta a opacidade para não brigar com o conteúdo */
+    }
+
+        /* Faz os painéis interativos se destacarem suavemente no hover */
+        .interactive-panel {
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* 1. Animação FORRÓ: Glitch Rápido */
+        @keyframes glitch {
+            0% { transform: skewX(0deg); filter: hue-rotate(0deg); }
+            10% { transform: skewX(-5deg) translateX(-2px); filter: invert(20%); }
+            20% { transform: skewX(5deg) translateX(2px); filter: hue-rotate(-90deg); }
+            30% { transform: skewX(0deg); }
+            40% { transform: skewX(-2deg) translateY(-2px); filter: hue-rotate(180deg); }
+            50% { transform: skewX(2deg) translateY(2px); filter: invert(0%); }
+            60% { transform: skewX(0deg); }
+            70% { transform: skewX(-10deg) scale(1.02); filter: contrast(150%); }
+            80% { transform: skewX(10deg) scale(0.98); }
+            100% { transform: skewX(0deg); filter: hue-rotate(0deg); }
+        }
+        .anim-forro:hover { 
+            animation: glitch 0.35s infinite; 
+            z-index: 50;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        /* 2. Animação ROCK: Tremor Brusco */
+        @keyframes hard-shake {
+            0% { transform: translate(3px, 2px) rotate(0deg) scale(1.05); }
+            10% { transform: translate(-2px, -3px) rotate(-1deg) scale(1.05); }
+            20% { transform: translate(-4px, 0px) rotate(2deg) scale(1.05); }
+            30% { transform: translate(0px, 3px) rotate(0deg) scale(1.05); }
+            40% { transform: translate(2px, -2px) rotate(2deg) scale(1.05); }
+            50% { transform: translate(-2px, 3px) rotate(-2deg) scale(1.05); }
+            60% { transform: translate(-4px, 2px) rotate(0deg) scale(1.05); }
+            70% { transform: translate(3px, 2px) rotate(-1deg) scale(1.05); }
+            80% { transform: translate(-2px, -2px) rotate(2deg) scale(1.05); }
+            90% { transform: translate(3px, 3px) rotate(0deg) scale(1.05); }
+            100% { transform: translate(2px, -3px) rotate(-2deg) scale(1.05); }
+        }
+        .anim-rock:hover { 
+            animation: hard-shake 0.1s infinite; 
+            filter: contrast(150%) saturate(150%);
+            z-index: 50;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+       /* 3. Animação PSICODÉLICO: Derretimento Líquido e Cores */
+        @keyframes melt {
+            0% { 
+                filter: hue-rotate(0deg) contrast(100%); 
+                transform: scaleY(1) skewX(0deg); 
+                border-radius: 0 0 0 0; 
+            }
+            25% {
+                border-radius: 40% 60% 0 0 / 50% 50% 0 0;
+                transform: scaleY(1.03) skewX(1deg);
+            }
+            50% { 
+                filter: hue-rotate(180deg) contrast(150%) blur(1px); 
+                transform: scaleY(1.06) skewX(-1deg); 
+                border-radius: 60% 40% 0 0 / 60% 70% 0 0; 
+            }
+            75% {
+                border-radius: 30% 70% 0 0 / 50% 40% 0 0;
+                transform: scaleY(1.03) skewX(2deg);
+            }
+            100% { 
+                filter: hue-rotate(360deg) contrast(100%); 
+                transform: scaleY(1) skewX(0deg); 
+                border-radius: 0 0 0 0; 
+            }
+        }
+        
+        .anim-psicodelico {
+            transition: all 0.4s ease; 
+            transform-origin: bottom center; /* Mantém a base reta e estática */
+        }
+        
+        .anim-psicodelico:hover { 
+            animation: melt 2.5s infinite alternate ease-in-out; 
+            z-index: 50;
+            box-shadow: 0 10px 20px rgba(107, 70, 193, 0.4); 
+        }
+
+        /* 4. Animação CLÁSSICA: Suave, Zoom e Sépia */
+        .anim-classica { 
+            transition: all 1s ease-in-out; 
+        }
+        .anim-classica:hover { 
+            transform: scale(1.05); 
+            filter: sepia(80%) contrast(120%) brightness(110%); 
+            z-index: 50;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        /* 5. Animação DISCO: Filtro Neon e Zoom Pulsante */
+        @keyframes disco-pulse {
+            0% { filter: hue-rotate(0deg) drop-shadow(0 0 10px #ff00ff) saturate(200%); transform: scale(1.02); }
+            25% { filter: hue-rotate(90deg) drop-shadow(0 0 10px #00ffff) saturate(200%); transform: scale(1.05); }
+            50% { filter: hue-rotate(180deg) drop-shadow(0 0 10px #00ff00) saturate(200%); transform: scale(1.02); }
+            75% { filter: hue-rotate(270deg) drop-shadow(0 0 10px #ffff00) saturate(200%); transform: scale(1.05); }
+            100% { filter: hue-rotate(360deg) drop-shadow(0 0 10px #ff00ff) saturate(200%); transform: scale(1.02); }
+        }
+        .anim-disco:hover { 
+            animation: disco-pulse 0.5s infinite; 
+            z-index: 50;
+        }
+    </style>
+</head>
+
+<body class="bg-sound-waves p-4 md:p-10 flex flex-col items-center min-h-screen">
+
+    <header class="mb-8 text-center mt-4 z-20">
+        <h1 class="text-5xl md:text-6xl text-[var(--comic-white)] drop-shadow-[3px_3px_0_var(--comic-purple)] mb-4 uppercase tracking-wide" style="-webkit-text-stroke: 1px #2e3d91;">Som Animado</h1>
+        <p class="text-lg font-bold bg-[var(--comic-purple)] text-white px-6 py-2 brutal-border inline-block transform -rotate-1 brutal-shadow">Interaja com os quadros em destaque e comece a festa!</p>
+    </header>
+
+    <div class="bg-pattern-overlay"></div>
+
+    <main class="w-full max-w-4xl relative brutal-border brutal-shadow bg-white mx-auto overflow-hidden" style="aspect-ratio: 26.65 / 27.50;">
+        
+        <!-- IMAGEM BASE -->
+        <img src="../image/comic1/background-comic.png" class="absolute inset-0 w-full h-full object-cover z-0" alt="Página Completa da HQ Base">
+
+        <!-- OS QUADROS FATIADOS -->
+        <!-- NOTA: Foi adicionada a classe 'overflow-hidden' em todos os quadros interativos. -->
+
+        <!-- 1. Quadro FORRÓ (Linha 1, Coluna 1) -->
+        <div class="absolute interactive-panel anim-forro group brutal-border brutal-shadow overflow-hidden" 
+             style="top: 2%; left: 4%; width: 21%; height: 27%;"
+             onmouseenter="playAudio('forro')" onmouseleave="stopAudio('forro')">
+            <img src="../image/comic1/forro.png" class="w-full h-full object-cover" alt="Quadro Forró">
+            <i data-lucide="music" class="absolute top-2 right-2 w-6 h-6 text-white opacity-0 group-hover:opacity-100 drop-shadow-md transition-opacity"></i>
+        </div>
+
+        <!-- 2. Quadro ROCK (Linha 1, Coluna 2) -->
+        <div class="absolute interactive-panel anim-rock group brutal-border brutal-shadow overflow-hidden" 
+             style="top: 2%; left: 37%; width: 21%; height: 27%;"
+             onmouseenter="playAudio('rock')" onmouseleave="stopAudio('rock')">
+            <img src="../image/comic1/rock.png" class="w-full h-full object-cover" alt="Quadro Rock">
+            <i data-lucide="music" class="absolute top-2 right-2 w-6 h-6 text-white opacity-0 group-hover:opacity-100 drop-shadow-md transition-opacity"></i>
+        </div>
+
+        <!-- 3. Quadro PSICODÉLICO (Linha 1, Coluna 3) -->
+        <div class="absolute interactive-panel anim-psicodelico group brutal-border brutal-shadow overflow-hidden" 
+             style="top: 2%; left: 70%; width: 21%; height: 27%;"
+             onmouseenter="playAudio('psicodelico')" onmouseleave="stopAudio('psicodelico')">
+            <img src="../image/comic1/psicodelico.png" class="w-full h-full object-cover" alt="Quadro Psicodélico">
+            <i data-lucide="music" class="absolute top-2 right-2 w-6 h-6 text-white opacity-0 group-hover:opacity-100 drop-shadow-md transition-opacity z-20"></i>
+        </div>
+
+        <!-- 4. Quadro CLÁSSICA (Linha 2, Coluna 1) -->
+        <div class="absolute interactive-panel anim-classica group brutal-border brutal-shadow overflow-hidden" 
+             style="top: 70%; left: 4%; width: 21%; height: 27%;"
+             onmouseenter="playAudio('classico')" onmouseleave="stopAudio('classico')">
+            <img src="../image/comic1/classico.png" class="w-full h-full object-cover" alt="Quadro Clássica">
+            <i data-lucide="music" class="absolute top-2 right-2 w-6 h-6 text-white opacity-0 group-hover:opacity-100 drop-shadow-md transition-opacity"></i>
+        </div>
+
+        <!-- 5. Quadro DISCO (Linha 2, Coluna 2) -->
+        <div class="absolute interactive-panel anim-disco group brutal-border brutal-shadow overflow-hidden" 
+             style="top: 70%; left: 37%; width: 21%; height: 27%;"
+             onmouseenter="playAudio('disco')" onmouseleave="stopAudio('disco')">
+            <img src="../image/comic1/disco.png" class="w-full h-full object-cover" alt="Quadro Disco">
+            <i data-lucide="music" class="absolute top-2 right-2 w-6 h-6 text-white opacity-0 group-hover:opacity-100 drop-shadow-md transition-opacity"></i>
+        </div>
+
+    </main>
+
+    <!-- ÁUDIOS -->
+    <audio id="audio-rock" src="../image/comic1/sound/rock.mp3"></audio>
+    <audio id="audio-psicodelico" src="../image/comic1/sound/psicodelico.mp3"></audio>
+    <audio id="audio-disco" src="../image/comic1/sound/disco.mp3"></audio>
+    <audio id="audio-forro" src="../image/comic1/sound/forro.mp3"></audio>
+    <audio id="audio-classico" src="../image/comic1/sound/classico.mp3"></audio>
+
+                    <!-- BOTÃO DE VOLTAR NO FINAL DA PÁGINA (Sempre visível no rodapé) -->
+    <footer class="w-full max-w-2xl mt-auto pt-10 pb-6 conteudo-hq flex justify-center">
+        <a href="../index.html" class="bg-[var(--comic-red)] hover:bg-black text-white px-8 py-4 font-luckiest text-2xl brutal-border brutal-shadow transition-all active:translate-y-1 flex items-center gap-3 no-underline">
+            <i data-lucide="arrow-left" class="w-6 h-6"></i> VOLTAR PARA WEBCOMICS
+        </a>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        function playAudio(genre) {
+            const audio = document.getElementById(`audio-${genre}`);
+            if (audio) {
+                audio.currentTime = 0; 
+                let playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => console.log(`Áudio ${genre} não encontrado.`));
+                }
+            }
+        }
+
+        function stopAudio(genre) {
+            const audio = document.getElementById(`audio-${genre}`);
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0; 
+            }
+        }
+    </script>
+</body>
+</html>
