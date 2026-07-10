@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcomic Interativa: Investigação | Metacomics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../CSS/style.css">
+
+    <style>
+        :root {
+            --comic-yellow: #F2DA63;
+            --comic-red: #d62552;
+            --comic-blue: #41BDD9;
+            --comic-black: #111111;
+        }
+
+        /* ==========================================================
+           A MÁGICA DO ZOOM: A LENTE BRUTALISTA
+           ========================================================== */
+        .zoom-container {
+            position: relative;
+            cursor: crosshair; /* Muda o cursor para uma mira */
+            overflow: hidden; /* Evita que a lente vase do quadro */
+        }
+
+        .lente-zoom {
+            position: absolute;
+            border: 4px solid var(--comic-red); /* Borda vermelha de destaque */
+            box-shadow: 6px 6px 0 var(--comic-black);
+            width: 250px; /* Tamanho do quadrado da lente */
+            height: 250px;
+            background-repeat: no-repeat;
+            pointer-events: none; /* O mouse ignora a lente e lê a imagem abaixo */
+            display: none; /* Escondida por padrão */
+            z-index: 50;
+            background-color: var(--comic-yellow); /* Cor de fundo enquanto carrega */
+        }
+
+        /* Quando o mouse entra no container, a lente aparece */
+        .zoom-container:hover .lente-zoom {
+            display: block;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-10 flex flex-col items-center min-h-screen relative z-10">
+
+    <a href="../webcomics.html" class="fixed top-4 right-4 z-[999] bg-white hover:bg-[var(--comic-red)] hover:text-white text-black border-4 border-black px-4 py-2 font-bangers text-xl brutal-shadow transition-all active:translate-y-1 flex items-center gap-2 no-underline">
+    <i data-lucide="arrow-left" class="w-5 h-5"></i> VOLTAR
+    </a>
+
+    <div class="bg-pattern-overlay"></div>
+
+    <header class="mb-8 text-center max-w-2xl">
+        <h1 class="text-5xl md:text-6xl font-bangers text-[var(--comic-red)] drop-shadow-[3px_3px_0_var(--comic-black)] mb-4" style="-webkit-text-stroke: 1px #111;">PROTOCOLO: INVESTIGAÇÃO</h1>
+        <p class="text-xl font-bold bg-white px-4 py-2 brutal-border inline-block transform rotate-1">Passe o mouse pela imagem para inspecionar os detalhes com a lente de aumento!</p>
+    </header>
+
+    <main class="w-full max-w-5xl bg-white p-2 brutal-border brutal-shadow zoom-container" id="container-imagem">
+        
+        <img id="arte-comic" src="../image/arte-fundo.jpg" alt="Cena do Crime" class="w-full h-auto border-4 border-black block">
+        
+        <div id="lente" class="lente-zoom"></div>
+
+    </main>
+
+    <script>
+        const container = document.getElementById('container-imagem');
+        const img = document.getElementById('arte-comic');
+        const lente = document.getElementById('lente');
+
+        // Configuração: Nível de Zoom (ex: 2 = 200%, 3 = 300%)
+        const zoomLevel = 2.5;
+
+        // Ouve o movimento do mouse dentro do quadro da comic
+        container.addEventListener('mousemove', function(e) {
+            e.preventDefault();
+
+            // 1. Configura a imagem de fundo da lente para ser igual à arte principal
+            if (!lente.style.backgroundImage) {
+                lente.style.backgroundImage = `url('${img.src}')`;
+                // Multiplica o tamanho da imagem da lente pelo nível de zoom
+                lente.style.backgroundSize = `${img.width * zoomLevel}px ${img.height * zoomLevel}px`;
+            }
+
+            // 2. Calcula a posição do mouse em relação à imagem
+            const rect = img.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+
+            // 3. Move o "quadrado vermelho" da lente para acompanhar o cursor (centralizado)
+            const lensWidth = lente.offsetWidth;
+            const lensHeight = lente.offsetHeight;
+            lente.style.left = `${x - (lensWidth / 2)}px`;
+            lente.style.top = `${y - (lensHeight / 2)}px`;
+
+            // 4. Move a imagem de fundo *dentro* da lente para criar o efeito de aumento
+            // A matemática aqui inverte a posição e multiplica pelo zoom
+            const bgX = -(x * zoomLevel - lensWidth / 2);
+            const bgY = -(y * zoomLevel - lensHeight / 2);
+            lente.style.backgroundPosition = `${bgX}px ${bgY}px`;
+        });
+
+        // Recalcula o tamanho se o usuário redimensionar a tela do navegador
+        window.addEventListener('resize', function() {
+            if (lente.style.backgroundImage) {
+                lente.style.backgroundSize = `${img.width * zoomLevel}px ${img.height * zoomLevel}px`;
+            }
+        });
+    </script>
+</body>
+</html>

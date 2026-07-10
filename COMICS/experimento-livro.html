@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcomic Interativa: O Livro com Lupa | Metacomics</title>
+    <link rel="stylesheet" href="../CSS/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Quicksand:wght@400;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* =========================================
+           O LIVRO 3D
+           ========================================= */
+        .cena-3d { perspective: 1500px; }
+
+        .folha {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            transform-style: preserve-3d; 
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transform-origin: left center; 
+            cursor: pointer;
+        }
+
+        .pagina {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            backface-visibility: hidden; background-color: white;
+            display: flex; flex-direction: column;
+        }
+
+        .verso { transform: rotateY(180deg); }
+        .folha-virada { transform: rotateY(-180deg); }
+
+        .sombra-lombada { background: linear-gradient(to right, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 10%); }
+        .sombra-lombada-verso { background: linear-gradient(to left, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 10%); }
+
+        /* Cursor especial quando a Lupa está ativada */
+        .zoom-ativo .folha { cursor: zoom-in !important; }
+    </style>
+</head>
+<body class="p-4 md:p-10 flex flex-col items-center min-h-screen relative z-10 overflow-x-hidden">
+
+    <a href="../webcomics.html" class="fixed top-4 right-4 z-[999] bg-white hover:bg-[var(--comic-red)] hover:text-white text-black border-4 border-black px-4 py-2 font-bangers text-xl brutal-shadow transition-all active:translate-y-1 flex items-center gap-2 no-underline">
+    <i data-lucide="arrow-left" class="w-5 h-5"></i> VOLTAR
+    </a>
+
+    <div class="bg-pattern-overlay"></div>
+
+    <div id="zoom-overlay" style="display: none;" class="fixed inset-0 bg-black/95 z-[100] flex-col items-center justify-start overflow-y-auto p-4 md:p-10 cursor-zoom-out" onclick="fecharOverlay()">
+        <p class="text-white font-bangers text-xl md:text-2xl mb-4 tracking-widest text-center animate-pulse">CLIQUE EM QUALQUER LUGAR PARA FECHAR A LUPA</p>
+        <img id="zoom-img" src="" class="w-full max-w-4xl h-auto brutal-border bg-white" alt="Página Ampliada">
+    </div>
+
+    <header class="mb-4 text-center max-w-3xl w-full relative z-50">
+        <h1 class="text-5xl md:text-6xl font-bangers text-[var(--comic-yellow)] drop-shadow-[3px_3px_0_var(--comic-black)] mb-2" style="-webkit-text-stroke: 1px #111;">ARTBOOK</h1>
+        <p class="text-lg font-bold bg-white px-4 py-1 brutal-border inline-block transform -rotate-1 mb-4" id="instrucao-texto">
+            Clique nas páginas ou use os botões para ler.
+        </p>
+        
+        <div class="flex gap-4 justify-center flex-wrap">
+            <button onclick="voltar()" class="bg-white hover:bg-gray-200 border-4 border-black px-4 py-2 font-bangers text-xl brutal-shadow transition-transform active:translate-y-1">
+                &larr; VOLTAR
+            </button>
+            
+            <button id="btn-zoom" onclick="alternarZoom()" class="bg-[var(--comic-blue)] text-white hover:bg-black border-4 border-black px-4 py-2 font-bangers text-xl brutal-shadow transition-all active:translate-y-1 flex items-center gap-2">
+                <i data-lucide="search" class="w-5 h-5"></i> MODO LUPA
+            </button>
+
+            <button onclick="avancar()" class="bg-[var(--comic-yellow)] hover:bg-[var(--comic-black)] hover:text-white border-4 border-black px-4 py-2 font-bangers text-xl brutal-shadow transition-all active:translate-y-1">
+                AVANÇAR &rarr;
+            </button>
+        </div>
+    </header>
+
+    <main class="w-full flex justify-center mt-4 mb-8 px-4">
+        <div class="w-full max-w-4xl flex justify-end relative">
+            
+            <div class="cena-3d w-1/2 aspect-[3/4] relative brutal-shadow brutal-border bg-black">
+                
+                <div class="folha" id="folha-5" style="z-index: 10;" onclick="interagirPagina(event, 5)">
+                    <div class="pagina frente">
+                        <img src="../image/comic3/P8.png"w-full h-full object-cover" alt="Página 8">
+                        <div class="absolute inset-0 sombra-lombada pointer-events-none"></div>
+                        <span class="absolute bottom-2 right-2 font-bold bg-white px-2 border-2 border-black pointer-events-none">8</span>
+                    </div>
+                    <div class="pagina verso">
+                        <img src="../image/comic3/P9.png"w-full h-full object-cover" alt="Contracapa">
+                        <div class="absolute inset-0 sombra-lombada-verso pointer-events-none"></div>
+                         <span class="absolute bottom-2 left-2 font-bold bg-white px-2 border-2 border-black pointer-events-none">9</span>
+                    </div>
+                </div>
+                
+                <div class="folha" id="folha-4" style="z-index: 10;" onclick="interagirPagina(event, 4)">
+                    <div class="pagina frente">
+                        <img src="../image/comic3/P6.png"w-full h-full object-cover" alt="Página 6">
+                        <div class="absolute inset-0 sombra-lombada pointer-events-none"></div>
+                        <span class="absolute bottom-2 right-2 font-bold bg-white px-2 border-2 border-black pointer-events-none">6</span>
+                    </div>
+                    <div class="pagina verso">
+                        <img src="../image/comic3/P7.png"w-full h-full object-cover" alt="Página 7">
+                        <div class="absolute inset-0 sombra-lombada-verso pointer-events-none"></div>
+                        <span class="absolute bottom-2 left-2 font-bold bg-white px-2 border-2 border-black pointer-events-none">7</span>
+                    </div>
+                </div>
+                
+                <div class="folha" id="folha-3" style="z-index: 10;" onclick="interagirPagina(event, 3)">
+                    <div class="pagina frente">
+                        <img src="../image/comic3/P4.png"w-full h-full object-cover" alt="Página 4">
+                        <div class="absolute inset-0 sombra-lombada pointer-events-none"></div>
+                        <span class="absolute bottom-2 right-2 font-bold bg-white px-2 border-2 border-black pointer-events-none">4</span>
+                    </div>
+                    <div class="pagina verso">
+                        <img src="../image/comic3/P5.png"w-full h-full object-cover" alt="Página 5">
+                        <div class="absolute inset-0 sombra-lombada-verso pointer-events-none"></div>
+                        <span class="absolute bottom-2 left-2 font-bold bg-white px-2 border-2 border-black pointer-events-none">5</span>
+                    </div>
+                </div>
+
+                <div class="folha" id="folha-2" style="z-index: 20;" onclick="interagirPagina(event, 2)">
+                    <div class="pagina frente">
+                        <img src="../image/comic3/P2.png" class="w-full h-full object-cover" alt="Página 2">
+                        <div class="absolute inset-0 sombra-lombada pointer-events-none"></div>
+                        <span class="absolute bottom-2 right-2 font-bold bg-white px-2 border-2 border-black pointer-events-none">2</span>
+                    </div>
+                    <div class="pagina verso">
+                        <img src="../image/comic3/P3.png" class="w-full h-full object-cover" alt="Página 3">
+                        <div class="absolute inset-0 sombra-lombada-verso pointer-events-none"></div>
+                        <span class="absolute bottom-2 left-2 font-bold bg-white px-2 border-2 border-black pointer-events-none">3</span>
+                    </div>
+                </div>
+
+                <div class="folha" id="folha-1" style="z-index: 30;" onclick="interagirPagina(event, 1)">
+                    <div class="pagina frente">
+                        <img src="../image/comic3/capa.png" class="w-full h-full object-cover" alt="Capa">
+                        <div class="absolute inset-0 sombra-lombada pointer-events-none"></div>
+                    </div>
+                    <div class="pagina verso">
+                        <img src="../image/comic3/P1.png" class="w-full h-full object-cover" alt="Página 1">
+                        <div class="absolute inset-0 sombra-lombada-verso pointer-events-none"></div>
+                        <span class="absolute bottom-2 left-2 font-bold bg-white px-2 border-2 border-black pointer-events-none">1</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        let estadoZoom = false;
+        const totalFolhas = 5; 
+        let folhaAtual = 1;
+
+        // =========================================
+        // LÓGICA MISTA: VIRAR PÁGINA OU DAR ZOOM
+        // =========================================
+        function interagirPagina(event, numeroFolha) {
+            
+            if (estadoZoom) {
+                // Se o modo Lupa está ativo, pegamos a URL da imagem clicada e abrimos o Overlay
+                if(event.target.tagName === 'IMG') {
+                    abrirOverlay(event.target.src);
+                }
+                return; // Impede que a página vire
+            }
+
+            // Lógica normal de virar a página se a lupa estiver desligada
+            const folha = document.getElementById(`folha-${numeroFolha}`);
+            if (folha.classList.contains('folha-virada')) {
+                if (numeroFolha === folhaAtual - 1) voltar();
+            } else {
+                if (numeroFolha === folhaAtual) avancar();
+            }
+        }
+
+        // =========================================
+        // LÓGICA DO LIVRO
+        // =========================================
+        function avancar() {
+            if (folhaAtual <= totalFolhas) {
+                const folha = document.getElementById(`folha-${folhaAtual}`);
+                folha.classList.add('folha-virada');
+                setTimeout(() => { folha.style.zIndex = totalFolhas + folhaAtual; }, 400);
+                folhaAtual++;
+            }
+        }
+
+        function voltar() {
+            if (folhaAtual > 1) {
+                folhaAtual--;
+                const folha = document.getElementById(`folha-${folhaAtual}`);
+                folha.classList.remove('folha-virada');
+                setTimeout(() => { folha.style.zIndex = (totalFolhas - folhaAtual + 1) * 10; }, 400);
+            }
+        }
+
+        // =========================================
+        // LÓGICA DA LUPA (OVERLAY LIGHTBOX)
+        // =========================================
+        function alternarZoom() {
+            estadoZoom = !estadoZoom;
+            const btnZoom = document.getElementById('btn-zoom');
+            const instrucao = document.getElementById('instrucao-texto');
+            
+            if (estadoZoom) {
+                document.body.classList.add('zoom-ativo');
+                btnZoom.innerHTML = '<i data-lucide="x-circle" class="w-5 h-5"></i> DESATIVAR LUPA';
+                btnZoom.classList.replace('bg-[var(--comic-blue)]', 'bg-[var(--comic-red)]');
+                
+                instrucao.innerText = "CLIQUE EM UMA PÁGINA PARA LER OS DETALHES!";
+                instrucao.classList.add('bg-[var(--comic-red)]', 'text-white');
+            } else {
+                document.body.classList.remove('zoom-ativo');
+                btnZoom.innerHTML = '<i data-lucide="search" class="w-5 h-5"></i> MODO LUPA';
+                btnZoom.classList.replace('bg-[var(--comic-red)]', 'bg-[var(--comic-blue)]');
+                
+                instrucao.innerText = "Clique nas páginas ou use os botões para ler.";
+                instrucao.classList.remove('bg-[var(--comic-red)]', 'text-white');
+            }
+            lucide.createIcons();
+        }
+
+        function abrirOverlay(caminhoImagem) {
+            document.getElementById('zoom-img').src = caminhoImagem;
+            document.getElementById('zoom-overlay').style.display = 'flex';
+            
+            // Trava o scroll do fundo (body) para rodar apenas a imagem
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function fecharOverlay() {
+            document.getElementById('zoom-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>
